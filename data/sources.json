@@ -13,6 +13,22 @@
       "license": "Public domain",
       "snapshotDate": "2026-09-27",
       "sha256": "d30c10f26c7c1fd7d9d1188a74cbe7daf92a25bfd3433f2b3329fb3236105767"
+    },
+    {
+      "path": "data/ne_50m_admin_0_boundary_lines_maritime_indicator.geojson",
+      "source": "https://github.com/nvkelso/natural-earth-vector/blob/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_admin_0_boundary_lines_maritime_indicator.geojson",
+      "version": "5.0.0",
+      "license": "Public domain",
+      "snapshotDate": "2026-09-27",
+      "sha256": "57f489b7b61e28e5250afb20ed0604b44535b0c9d1c40ebb565dcd1e4faa2ad9"
+    },
+    {
+      "path": "data/ne_50m_admin_0_boundary_lines_maritime_indicator_chn.geojson",
+      "source": "https://github.com/nvkelso/natural-earth-vector/blob/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_admin_0_boundary_lines_maritime_indicator_chn.geojson",
+      "version": "5.1.0",
+      "license": "Public domain",
+      "snapshotDate": "2026-09-27",
+      "sha256": "1108b52ba0dc540f282b5bf23f02e1a3e98f980494b581da3a59bb52538c7621"
     }
   ],
   "vendor": [

@@ -16,7 +16,9 @@
   function decode(id) {
     const topology = JSON.parse(document.getElementById(id).textContent);
     return { countries: topojson.feature(topology, topology.objects.countries).features,
-             lakes: topojson.feature(topology, topology.objects.lakes) };
+             lakes: topojson.feature(topology, topology.objects.lakes),
+             maritimeIndicators: topojson.feature(topology, topology.objects.maritimeIndicators).features,
+             maritimeChina: topojson.feature(topology, topology.objects.maritimeChina).features };
   }
   const detail = decode('detail-data');
   const motion = decode('motion-data');
@@ -31,6 +33,10 @@
     .attr('data-id', f => f.id).attr('data-name', f => f.properties.name)
     .attr('fill', f => f.properties.antarctica ? '#e3e9e9' : palette[f.properties.color] || palette[0]);
   countries.append('title').text(f => f.properties.name);
+  const maritimeIndicators = d3.select('#maritime-indicators').selectAll('path').data(detail.maritimeIndicators).join('path')
+    .attr('class', 'maritime-line');
+  const maritimeChina = d3.select('#maritime-china').selectAll('path').data(detail.maritimeChina).join('path')
+    .attr('class', 'maritime-line maritime-china-line');
   const labels = d3.select('#country-labels').selectAll('text').data(detail.countries).join('text')
     .attr('class', 'country-label').attr('data-code', f => f.properties.code).attr('data-id', f => f.id)
     .text(f => f.properties.name);
@@ -50,7 +56,10 @@
   function zoomLevel() { return fitSize.w / view.w; }
   function renderView() {
     svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
+    // Convert fixed screen-pixel text and halos to SVG units after zoom or resize.
+    svg.style.setProperty('--label-scale', view.w / Math.max(1, viewport.clientWidth));
     meter.textContent = `${Math.round(zoomLevel() * 100)}%`;
+    layoutLabels();
   }
   function fitView() {
     fitSize = fitDimensions();
@@ -58,24 +67,45 @@
     view.x = (base.w - view.w) / 2; view.y = (base.h - view.h) / 2;
     renderView();
   }
+  function layoutLabels() {
+    const scale = viewport.clientWidth / view.w;
+    const candidates = [];
+    function place(element, point, width, top, bottom, priority) {
+      const [x, y] = projection(point);
+      element.setAttribute('x', x); element.setAttribute('y', y);
+      const screenX = (x - view.x) * scale, screenY = (y - view.y) * scale;
+      candidates.push({ element, priority, left: screenX - width / 2, right: screenX + width / 2,
+        top: screenY - top, bottom: screenY + bottom });
+    }
+    labels.each(function(f) {
+      const selected = state.selected === f.id;
+      if (!f.properties.label && !selected) { this.style.display = 'none'; return; }
+      place(this, f.properties.point, [...f.properties.name].length * 10.5 + 5, 11, 11,
+        selected ? -1 : f.properties.labelRank || 6);
+    });
+    oceans.each(function(d) { place(this, d.point, [...d.name].length * 18 + 4, 28, 8, 0); });
+    // Fixed-size text needs screen-space spacing. Selection wins, then upstream label rank.
+    const occupied = [];
+    for (const box of candidates.sort((a, b) => a.priority - b.priority)) {
+      const onScreen = box.right > 0 && box.left < viewport.clientWidth && box.bottom > 0 && box.top < viewport.clientHeight;
+      const overlaps = occupied.some(other => box.left < other.right && box.right > other.left
+        && box.top < other.bottom && box.bottom > other.top);
+      const visible = box.priority < 0 || !onScreen || !overlaps;
+      box.element.style.display = visible ? '' : 'none';
+      if (visible && onScreen) occupied.push(box);
+    }
+  }
   function draw(full = false) {
     projection.rotate([-state.central, 0, 0]);
     const data = full ? detail : motion;
     const elements = countries.nodes();
     for (let i = 0; i < elements.length; i++) elements[i].setAttribute('d', path(data.countries[i]) || '');
     document.getElementById('lakes').setAttribute('d', path(data.lakes) || '');
+    // These short, sparse lines keep full detail while rotating and share D3's seam clipping.
+    maritimeIndicators.attr('d', path);
+    maritimeChina.attr('d', path);
     document.getElementById('grid').setAttribute('d', path(graticule));
-    labels.each(function(f) {
-      const visible = f.properties.label || state.selected === f.id;
-      this.style.display = visible ? '' : 'none';
-      if (!visible) return;
-      const [x, y] = projection(f.properties.point);
-      this.setAttribute('x', x); this.setAttribute('y', y);
-    });
-    oceans.each(function(d) {
-      const [x, y] = projection(d.point);
-      this.setAttribute('x', x); this.setAttribute('y', y);
-    });
+    layoutLabels();
     const central = wrap(state.central);
     longitude.textContent = `中央经线 ${Math.abs(central).toFixed(1)}°${central > .05 ? 'E' : central < -.05 ? 'W' : ''}`;
     svg.dataset.centralLongitude = central;

@@ -37,5 +37,12 @@ assert(!/<script[^>]+src\s*=|<link[^>]+rel=["']stylesheet|<image\b/i.test(html),
 assert.equal(detail.objects.countries.geometries.length, 242);
 assert.equal(motion.objects.countries.geometries.length, 242);
 assert.deepEqual(detail.objects.countries.geometries.map(f => f.id), motion.objects.countries.geometries.map(f => f.id));
+for (const topology of [detail, motion]) {
+  assert.equal(topology.objects.maritimeIndicators.geometries.length, 205);
+  assert.equal(topology.objects.maritimeChina.geometries.length, 9);
+  for (const layer of ['maritimeIndicators', 'maritimeChina']) {
+    assert(topology.objects[layer].geometries.every(feature => feature.type === 'LineString'));
+  }
+}
 assert(motion.arcs.reduce((n, arc) => n + arc.length, 0) < detail.arcs.reduce((n, arc) => n + arc.length, 0));
 console.log(`Checked ${checked} text files, source checksums, syntax, topology, and reproducible offline build.`);

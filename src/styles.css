@@ -7,9 +7,11 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 .country { cursor: pointer; stroke: #f9faf7; stroke-width: .65; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .country:hover { stroke: #517c87; stroke-width: 1.2; }
 .country.selected { stroke: #d87437; stroke-width: 1.8; }
-.country-label { fill: #304a50; font-size: 10.5px; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #fbfaf7; stroke-width: 2.1px; stroke-linejoin: round; cursor: pointer; }
+.maritime-line { fill: none; stroke: #7393a0; stroke-width: 1; vector-effect: non-scaling-stroke; stroke-linecap: round; pointer-events: none; }
+.maritime-china-line { stroke: #4d7484; stroke-width: 1.2; }
+.country-label { fill: #304a50; font-size: calc(10.5px * var(--label-scale, 1)); text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #fbfaf7; stroke-width: calc(2.1px * var(--label-scale, 1)); stroke-linejoin: round; cursor: pointer; }
 .country-label.selected { fill: #94471f; font-weight: 600; }
-.ocean-label { fill: #508aa0; opacity: .85; font-size: 18px; text-anchor: middle; pointer-events: none; }
+.ocean-label { fill: #508aa0; opacity: .85; font-size: calc(18px * var(--label-scale, 1)); text-anchor: middle; pointer-events: none; }
 .heading { position: fixed; top: 25px; left: 32px; pointer-events: none; }
 h1 { margin: 0; font-size: 23px; font-weight: 600; letter-spacing: .06em; }
 .heading span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .17em; color: #6a8790; }

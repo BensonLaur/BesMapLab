@@ -1,0 +1,10 @@
+{
+  "CHN": { "name": "中国" },
+  "RUS": { "name": "俄罗斯" },
+  "COD": { "name": "刚果（金）" },
+  "KOR": { "name": "韩国" },
+  "USA": { "name": "美国" },
+  "TWN": { "name": "台湾", "colorFrom": "CHN" },
+  "HKG": { "colorFrom": "CHN" },
+  "MAC": { "colorFrom": "CHN" }
+}

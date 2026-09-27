@@ -20,23 +20,31 @@ function build() {
   }
   const { d3, topojson } = context;
   const labels = JSON.parse(read('data/label-positions.zh-CN.json'));
-  const overrides = { CHN: '中国', RUS: '俄罗斯', COD: '刚果（金）', KOR: '韩国', USA: '美国' };
+  const overrides = JSON.parse(read('data/display-overrides.zh-CN.json'));
   const countries = JSON.parse(read('data/ne_50m_admin_0_countries.geojson'));
+  const colors = new Map(countries.features.map(feature => [feature.properties.ADM0_A3, feature.properties.MAPCOLOR7]));
   const lakes = JSON.parse(read('data/ne_50m_lakes.geojson'));
+  const maritimeIndicators = JSON.parse(read('data/ne_50m_admin_0_boundary_lines_maritime_indicator.geojson'));
+  const maritimeChina = JSON.parse(read('data/ne_50m_admin_0_boundary_lines_maritime_indicator_chn.geojson'));
   countries.features.forEach((feature, index) => {
     const properties = feature.properties;
-    const name = overrides[properties.ADM0_A3] || properties.NAME_ZH || properties.NAME;
+    const display = overrides[properties.ADM0_A3] || {};
+    const name = display.name || properties.NAME_ZH || properties.NAME;
     feature.id = `${properties.ADM0_A3}-${index}`;
     feature.properties = {
       name, code: properties.ADM0_A3,
       point: labels[name] || [properties.LABEL_X, properties.LABEL_Y],
-      label: Object.hasOwn(labels, name), color: properties.MAPCOLOR7,
+      label: Object.hasOwn(labels, name), labelRank: properties.LABELRANK,
+      color: colors.get(display.colorFrom) ?? properties.MAPCOLOR7,
       antarctica: properties.CONTINENT === 'Antarctica'
     };
   });
-  lakes.features.forEach(feature => { feature.properties = {}; });
-  const input = { countries, lakes };
-  for (const collection of Object.values(input)) {
+  for (const collection of [lakes, maritimeIndicators, maritimeChina]) {
+    collection.features.forEach(feature => { feature.properties = {}; });
+  }
+  const input = { countries, lakes, maritimeIndicators, maritimeChina };
+  // Only polygon rings need winding correction; maritime lines must remain open.
+  for (const collection of [countries, lakes]) {
     for (const feature of collection.features) {
       const polygons = feature.geometry.type === 'Polygon'
         ? [feature.geometry.coordinates] : feature.geometry.coordinates;
