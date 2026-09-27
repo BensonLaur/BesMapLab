@@ -1,0 +1,36 @@
+:root { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; color: #244752; background: #fbfaf7; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+#viewport { position: fixed; inset: 0; touch-action: none; user-select: none; cursor: grab; }
+#viewport.dragging { cursor: grabbing; }
+#map { width: 100%; height: 100%; display: block; }
+.country { cursor: pointer; stroke: #f9faf7; stroke-width: .65; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.country:hover { stroke: #517c87; stroke-width: 1.2; }
+.country.selected { stroke: #d87437; stroke-width: 1.8; }
+.country-label { fill: #304a50; font-size: 10.5px; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: #fbfaf7; stroke-width: 2.1px; stroke-linejoin: round; cursor: pointer; }
+.country-label.selected { fill: #94471f; font-weight: 600; }
+.ocean-label { fill: #508aa0; opacity: .85; font-size: 18px; text-anchor: middle; pointer-events: none; }
+.heading { position: fixed; top: 25px; left: 32px; pointer-events: none; }
+h1 { margin: 0; font-size: 23px; font-weight: 600; letter-spacing: .06em; }
+.heading span { display: block; margin-top: 4px; font-size: 10px; letter-spacing: .17em; color: #6a8790; }
+.longitude { position: fixed; right: 30px; top: 30px; font-size: 12px; color: #587580; font-variant-numeric: tabular-nums; pointer-events: none; }
+.selection { position: fixed; left: 50%; top: 25px; transform: translateX(-50%); padding: 9px 15px; border-radius: 12px; background: #ffffffed; box-shadow: 0 3px 18px #254c5510; font-size: 13px; pointer-events: none; }
+.selection[hidden] { display: none; }
+.controls { position: fixed; right: 19px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 17px; background: #ffffffed; border: 1px solid #dbe6e9; box-shadow: 0 8px 30px #18394112; }
+button { width: 43px; height: 43px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: #244752; font: 500 25px/1 system-ui, sans-serif; cursor: pointer; }
+button:hover, button:focus-visible { background: #e6f0f3; }
+#zoom { padding: 3px 0; text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.footer { position: fixed; left: 20px; bottom: 16px; right: 90px; display: flex; justify-content: space-between; gap: 15px; align-items: end; pointer-events: none; }
+.hint { padding: 9px 12px; border-radius: 10px; background: #ffffffed; font-size: 11px; line-height: 1.65; color: #587580; }
+.source { color: #6b8790; font-size: 10px; text-align: right; line-height: 1.7; }
+.source a { color: inherit; pointer-events: auto; }
+@media (max-width: 720px) {
+  .heading { top: 16px; left: 16px; }
+  h1 { font-size: 18px; }
+  .longitude { right: 16px; top: 22px; font-size: 10px; }
+  .selection { top: 68px; }
+  .controls { right: 10px; padding: 5px; }
+  .footer { left: 12px; right: 65px; bottom: 12px; }
+  .source { display: none; }
+  .hint { font-size: 10px; }
+}

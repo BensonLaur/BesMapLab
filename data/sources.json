@@ -1,0 +1,65 @@
+{
+  "data": [
+    {
+      "path": "data/ne_50m_admin_0_countries.geojson",
+      "source": "https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_50m_admin_0_countries.geojson",
+      "license": "Public domain",
+      "snapshotDate": "2026-09-27",
+      "sha256": "3fc03bafe7ef2f9cb6bd278784bfa2417ae890b79f3e13c15f80fb1d942bf445"
+    },
+    {
+      "path": "data/ne_50m_lakes.geojson",
+      "source": "https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_50m_lakes.geojson",
+      "license": "Public domain",
+      "snapshotDate": "2026-09-27",
+      "sha256": "d30c10f26c7c1fd7d9d1188a74cbe7daf92a25bfd3433f2b3329fb3236105767"
+    }
+  ],
+  "vendor": [
+    {
+      "path": "vendor/d3.min.js",
+      "package": "d3",
+      "version": "7.9.0",
+      "license": "ISC",
+      "licensePath": "LICENSES/d3.txt",
+      "source": "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
+      "sha256": "8b56e04f36583949cb0832c5cb863785ad26d6b9d444068f069764ea154f379a"
+    },
+    {
+      "path": "vendor/d3-geo-projection.min.js",
+      "package": "d3-geo-projection",
+      "version": "4.0.0",
+      "license": "ISC AND MIT",
+      "licensePath": "LICENSES/d3-geo-projection.txt",
+      "source": "https://cdn.jsdelivr.net/npm/d3-geo-projection@4.0.0/dist/d3-geo-projection.min.js",
+      "sha256": "e94fd668786b45d0e763fe68d3b2ca7b277c54760a2c35d6f9cb48019200d432"
+    },
+    {
+      "path": "vendor/topojson-client.min.js",
+      "package": "topojson-client",
+      "version": "3.1.0",
+      "license": "ISC",
+      "licensePath": "LICENSES/topojson-client.txt",
+      "source": "https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js",
+      "sha256": "ec362ac1599ef406ea9e79616a4ad47d4a3b3939882d47da7e4bc827a56f629c"
+    },
+    {
+      "path": "vendor/topojson-server.min.js",
+      "package": "topojson-server",
+      "version": "3.0.1",
+      "license": "ISC",
+      "licensePath": "LICENSES/topojson-server.txt",
+      "source": "https://cdn.jsdelivr.net/npm/topojson-server@3.0.1/dist/topojson-server.min.js",
+      "sha256": "8b32dbebbdc77dff669cd69607ae39541c9513d47b79719078ac65c5d5cf7bc5"
+    },
+    {
+      "path": "vendor/topojson-simplify.min.js",
+      "package": "topojson-simplify",
+      "version": "3.0.3",
+      "license": "ISC",
+      "licensePath": "LICENSES/topojson-simplify.txt",
+      "source": "https://cdn.jsdelivr.net/npm/topojson-simplify@3.0.3/dist/topojson-simplify.min.js",
+      "sha256": "f7437b5ad6782ba9c3ca951869b9210e63dd1d68d499cf2e6dcd174f732f97a4"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>BesMapLab · 地图实验室</title>
+  <meta name="description" content="通过旋转、比较与探索，了解世界地图的开源地图实验室。">
+  <style>
+__STYLES__
+  </style>
+</head>
+<body>
+  <noscript>BesMapLab 需要启用 JavaScript 才能绘制和操作地图。</noscript>
+  <main id="viewport">
+    <svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="可旋转和缩放的矢量世界地图，点击国家转到中央" viewBox="0 0 1728 972">
+      <defs><clipPath id="world-clip"><path id="clip-outline" /></clipPath></defs>
+      <path id="ocean" fill="#d9ecf2" />
+      <g id="contents" clip-path="url(#world-clip)">
+        <path id="grid" fill="none" stroke="#b8d4de" stroke-width=".6" vector-effect="non-scaling-stroke" pointer-events="none" />
+        <g id="countries"></g>
+        <path id="lakes" fill="#d9ecf2" stroke="#a4c6d0" stroke-width=".4" vector-effect="non-scaling-stroke" pointer-events="none" />
+        <g id="ocean-labels"></g>
+        <g id="country-labels"></g>
+      </g>
+      <path id="outline" fill="none" stroke="#97bcc9" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none" />
+    </svg>
+  </main>
+  <div class="heading"><h1>BesMapLab</h1><span>地图实验室 · 转动世界，看懂地图</span></div>
+  <div id="longitude" class="longitude">中央经线 0°</div>
+  <div id="selection" class="selection" hidden aria-live="polite"></div>
+  <div class="controls" role="group" aria-label="视图控制">
+    <button id="zoom-in" type="button" aria-label="放大" title="放大（+）">+</button>
+    <div id="zoom">100%</div>
+    <button id="zoom-out" type="button" aria-label="缩小" title="缩小（−）">−</button>
+    <button id="reset" type="button" aria-label="恢复世界全图" title="恢复世界全图（0）">⌖</button>
+  </div>
+  <div class="footer">
+    <div class="hint">点击国家：转到中央　·　左右拖动：旋转世界<br>滚轮：鼠标处缩放　·　Shift + 拖动：平移视图　·　0：重置</div>
+    <div class="source">罗宾森投影 · SVG 矢量绘制<br><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth 1:50m</a> · <a href="https://d3js.org/d3-geo/projection" target="_blank" rel="noopener">D3</a></div>
+  </div>
+  <!--
+__LICENSE_NOTICES__
+  -->
+  <script>__D3__</script>
+  <script>__PROJECTIONS__</script>
+  <script>__TOPOJSON__</script>
+  <script id="detail-data" type="application/json">__DETAIL__</script>
+  <script id="motion-data" type="application/json">__MOTION__</script>
+  <script>
+__APP__
+  </script>
+</body>
+</html>

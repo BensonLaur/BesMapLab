@@ -1,0 +1,20 @@
+{
+  "name": "besmaplab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "通过交互了解世界地图的开源地图实验室",
+  "license": "MIT",
+  "author": "BensonLaur",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BensonLaur/BesMapLab.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "check": "node scripts/check.cjs",
+    "test": "node tests/map-browser.cjs"
+  }
+}
