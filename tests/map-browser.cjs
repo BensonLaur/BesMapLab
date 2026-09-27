@@ -226,7 +226,10 @@ async function launchBrowser() {
     const box = document.getElementById('maritime-china').getBoundingClientRect();
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   })()`);
-  await send('Input.dispatchMouseEvent', { type: 'mouseWheel', ...seaCenter, deltaX: 0, deltaY: -1100 });
+  await send('Input.dispatchMouseEvent', { type: 'mouseWheel', ...seaCenter, deltaX: 0, deltaY: -500 });
+  await delay(100);
+  await screenshot('maritime-regional.png');
+  await send('Input.dispatchMouseEvent', { type: 'mouseWheel', ...seaCenter, deltaX: 0, deltaY: -600 });
   await delay(100);
   await screenshot('maritime-south-china-sea.png');
   // Move the opposite longitude to the center so the supplement crosses the map seam.

@@ -58,6 +58,11 @@
     svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
     // Convert fixed screen-pixel text and halos to SVG units after zoom or resize.
     svg.style.setProperty('--label-scale', view.w / Math.max(1, viewport.clientWidth));
+    // Use the actual screen scale so dense line fragments also recede on narrow screens.
+    const seaDetail = clamp((viewport.clientWidth / view.w - .9) / 3.5, 0, 1);
+    const seaEmphasis = seaDetail * seaDetail * (3 - 2 * seaDetail);
+    svg.style.setProperty('--maritime-opacity', .16 + .36 * seaEmphasis);
+    svg.style.setProperty('--maritime-china-opacity', .4 + .32 * seaEmphasis);
     meter.textContent = `${Math.round(zoomLevel() * 100)}%`;
     layoutLabels();
   }
