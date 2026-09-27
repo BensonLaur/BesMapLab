@@ -73,6 +73,23 @@ async function launchBrowser() {
     const result = await send('Page.captureScreenshot', { format: 'png' });
     fs.writeFileSync(path.join(output, name), Buffer.from(result.data, 'base64'));
   }
+  async function click(selector) {
+    const point = await evaluate(`(() => {
+      const box = document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    })()`);
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...point, button: 'left', clickCount: 1 });
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...point, button: 'left', clickCount: 1 });
+  }
+  async function tap(selector) {
+    const point = await evaluate(`(() => {
+      const box = document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    })()`);
+    await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ ...point, id: 1 }] });
+    await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await delay(80);
+  }
   await send('Runtime.enable');
   await send('Page.enable');
   // Enforce that opening the file needs no network resources.
@@ -121,7 +138,45 @@ async function launchBrowser() {
       if (name !== 'ocean') assert(Math.abs(reference[name].halo - actual[name].halo) < .05, 'Label halo changed on screen');
     }
   }
+  const coordinateMetricsExpression = `(() => {
+    const map = document.getElementById('map');
+    const projection = d3.geoRobinson().fitExtent([[64, 98], [1664, 854]], { type: 'Sphere' })
+      .rotate([-Number(map.dataset.centralLongitude), 0, 0]);
+    const elements = [...document.querySelectorAll('.coordinate-label')];
+    const roundTripErrors = elements.map(element => {
+      const tick = element.previousElementSibling, point = tick.getPointAtLength(tick.getTotalLength() / 2);
+      const location = projection.invert([point.x, point.y]);
+      const axis = element.dataset.axis, value = Number(element.dataset.value);
+      const delta = location[axis === 'longitude' ? 0 : 1] - value;
+      return Math.abs(axis === 'longitude' ? ((delta + 540) % 360) - 180 : delta);
+    });
+    return { longitudeStep: +map.dataset.longitudeStep, latitudeStep: +map.dataset.latitudeStep,
+      axes: [...new Set(elements.map(element => element.dataset.axis))].sort(),
+      labels: elements.map(element => element.textContent),
+      maxError: Math.max(0, ...roundTripErrors),
+      font: elements.length ? parseFloat(getComputedStyle(elements[0]).fontSize) * elements[0].getScreenCTM().a : 0,
+      gridValid: !/NaN|Infinity/.test(document.getElementById('grid').getAttribute('d')) };
+  })()`;
+  function assertCoordinates(metrics) {
+    assert.deepEqual(metrics.axes, ['latitude', 'longitude']);
+    assert(metrics.gridValid && metrics.maxError < .001, 'Coordinate ticks must match projected geographic positions');
+    assert(Math.abs(metrics.font - 10) < .01, 'Coordinate labels must retain a fixed screen size');
+  }
   const before = await evaluate(snapshotExpression);
+  const overviewCoordinates = await evaluate(coordinateMetricsExpression);
+  assertCoordinates(overviewCoordinates);
+  const chinaAnchor = await evaluate(`(() => {
+    const label = document.querySelector('.country-label[data-code="CHN"]');
+    const point = new DOMPoint(+label.getAttribute('x'), +label.getAttribute('y')).matrixTransform(label.getScreenCTM());
+    return { x: point.x, y: point.y };
+  })()`);
+  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...chinaAnchor });
+  const pointerCoordinates = await evaluate(`({ ...document.getElementById('coordinate-readout').dataset })`);
+  assert(Math.abs(+pointerCoordinates.longitude - 104) < .01 && Math.abs(+pointerCoordinates.latitude - 35) < .01,
+    'Pointer coordinates should match the China label location: ' + JSON.stringify(pointerCoordinates));
+  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 5, y: 5 });
+  assert.equal(await evaluate('document.getElementById("coordinate-readout").dataset.longitude'), undefined,
+    'The area outside the map must not produce geographic coordinates');
   const initialLabelMetrics = await evaluate(labelMetricsExpression);
   assert(before.maritime.every(layer => layer.open && layer.geometry.length > 0));
   assert.deepEqual(before.maritime.map(layer => layer.count), [205, 9]);
@@ -135,6 +190,7 @@ async function launchBrowser() {
     requestAnimationFrame(sample);
   })`);
   const centered = await evaluate(snapshotExpression);
+  assertCoordinates(await evaluate(coordinateMetricsExpression));
   await screenshot('rotating-china-centered.png');
   await evaluate("document.getElementById('reset').click()");
   await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 780, y: 440 });
@@ -159,6 +215,7 @@ async function launchBrowser() {
     outlineFixedOnDrag: before.outline === rotated.outline,
     viewBoxFixedOnDrag: before.viewBox === rotated.viewBox,
     maritimeCounts: before.maritime.map(layer => layer.count),
+    overviewCoordinates, pointerCoordinates,
     errors
   };
   await evaluate("document.getElementById('reset').click()");
@@ -211,6 +268,10 @@ async function launchBrowser() {
   await delay(100);
   assert.equal(await evaluate('document.getElementById("zoom").textContent'), '6400%');
   report.labelsAtMaximumZoom = await evaluate(labelMetricsExpression);
+  report.coordinatesAtMaximumZoom = await evaluate(coordinateMetricsExpression);
+  assertCoordinates(report.coordinatesAtMaximumZoom);
+  assert(report.coordinatesAtMaximumZoom.longitudeStep < overviewCoordinates.longitudeStep
+    && report.coordinatesAtMaximumZoom.latitudeStep < overviewCoordinates.latitudeStep, 'Zoom should refine grid spacing');
   assert(report.labelsAtMaximumZoom.taiwan.width > 0, 'Selected Taiwan label must remain visible');
   assertFixedLabels(selectedLabelMetrics, report.labelsAtMaximumZoom, ['country', 'taiwan', 'ocean']);
   await screenshot('taiwan-fixed-label-64x.png');
@@ -238,8 +299,43 @@ async function launchBrowser() {
   await delay(100);
   const seam = await evaluate(snapshotExpression);
   assert(seam.maritime.every(layer => layer.open && layer.geometry.length > 0));
+  assertCoordinates(await evaluate(coordinateMetricsExpression));
   await screenshot('maritime-seam.png');
   await evaluate('document.getElementById("reset").click()');
+  const layerTargets = { countryLabels: 'country-labels', oceanLabels: 'ocean-labels', grid: 'grid',
+    coordinates: 'coordinate-labels', maritime: 'maritime-indicators', maritimeChina: 'maritime-china' };
+  const layerStateExpression = `Object.fromEntries([...document.querySelectorAll('[data-layer]')].map(input => [input.dataset.layer, input.checked]))`;
+  await click('#layers-toggle');
+  assert.equal(await evaluate('document.getElementById("layers-toggle").getAttribute("aria-expanded")'), 'true');
+  await screenshot('layers-desktop.png');
+  for (const [key, id] of Object.entries(layerTargets)) {
+    await click(`[data-layer="${key}"]`);
+    assert.equal(await evaluate(`getComputedStyle(document.getElementById('${id}')).display`), 'none');
+    await click(`[data-layer="${key}"]`);
+    assert.notEqual(await evaluate(`getComputedStyle(document.getElementById('${id}')).display`), 'none');
+  }
+  // Saving a mixed selection must survive a reload and the separate view-reset action.
+  for (const key of ['countryLabels', 'grid', 'maritime']) await click(`[data-layer="${key}"]`);
+  const savedLayers = await evaluate(layerStateExpression);
+  await send('Page.reload'); await delay(500);
+  assert.deepEqual(await evaluate(layerStateExpression), savedLayers);
+  await click('#reset');
+  assert.deepEqual(await evaluate(layerStateExpression), savedLayers);
+  await click('#layers-toggle');
+  await click('#layers-defaults');
+  assert(Object.values(await evaluate(layerStateExpression)).every(Boolean));
+  // Native switch keyboard interaction and Escape should preserve focus and map position.
+  const longitudeBeforePanelKeys = await evaluate('document.getElementById("map").dataset.centralLongitude');
+  await evaluate('document.querySelector("[data-layer=grid]").focus()');
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
+  assert.equal((await evaluate(layerStateExpression)).grid, false);
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  assert.equal(await evaluate('document.getElementById("layers-panel").hidden'), true);
+  assert.equal(await evaluate('document.activeElement.id'), 'layers-toggle');
+  assert.equal(await evaluate('document.getElementById("map").dataset.centralLongitude'), longitudeBeforePanelKeys);
+  await click('#layers-toggle'); await click('#layers-defaults'); await click('#layers-close');
+  report.layerPreferences = { independentSwitches: 6, savedAcrossReload: true, viewResetPreservesLayers: true, keyboard: true };
   // A narrow viewport should retain access to controls and avoid page overflow.
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await delay(200);
@@ -254,12 +350,49 @@ async function launchBrowser() {
     return { visible: boxes.length, overlaps };
   })()`);
   await screenshot('mobile-overview.png');
+  assertCoordinates(await evaluate(coordinateMetricsExpression));
+  await send('Emulation.setTouchEmulationEnabled', { enabled: true });
+  await tap('#layers-toggle');
+  const mobilePanel = await evaluate(`(() => {
+    const box = document.getElementById('layers-panel').getBoundingClientRect();
+    return { left: box.left, right: box.right, bottom: box.bottom, viewportWidth: innerWidth, viewportHeight: innerHeight };
+  })()`);
+  assert(mobilePanel.left >= 0 && mobilePanel.right <= mobilePanel.viewportWidth && mobilePanel.bottom <= mobilePanel.viewportHeight);
+  await screenshot('layers-mobile.png');
+  await tap('[data-layer="oceanLabels"]');
+  assert.equal(await evaluate('getComputedStyle(document.getElementById("ocean-labels")).display'), 'none');
+  await tap('#layers-defaults'); await tap('#layers-close');
   assert(report.mobileLabels.visible > 0 && !report.mobileLabels.overlaps.length,
     'Mobile labels should remain readable without overlap: ' + JSON.stringify(report.mobileLabels));
   // Different viewport transforms can shift glyph hinting by a fractional pixel.
   assertFixedLabels(initialLabelMetrics, await evaluate(labelMetricsExpression), ['country', 'ocean'], 1);
   await evaluate('document.getElementById("zoom-in").click()');
   assertFixedLabels(initialLabelMetrics, await evaluate(labelMetricsExpression), ['country', 'ocean'], 1);
+  // A short phone viewport must allow scrolling to the final control.
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 360, deviceScaleFactor: 1, mobile: true });
+  await tap('#layers-toggle');
+  await evaluate('document.getElementById("layers-defaults").scrollIntoView({ block: "end" })');
+  const defaultsVisible = await evaluate(`(() => {
+    const box = document.getElementById('layers-defaults').getBoundingClientRect();
+    return box.top >= 0 && box.bottom <= innerHeight;
+  })()`);
+  assert(defaultsVisible, 'All layer controls must remain reachable on short screens');
+  await screenshot('layers-short-screen.png');
+  await send('Emulation.setTouchEmulationEnabled', { enabled: false });
+  await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 900, deviceScaleFactor: 1, mobile: false });
+  // Corrupt or unavailable browser storage should never stop offline rendering.
+  await evaluate(`localStorage.setItem('besmaplab.layers.v1', '{broken')`);
+  await send('Page.reload'); await delay(500);
+  assert(Object.values(await evaluate(layerStateExpression)).every(Boolean));
+  const blockedStorage = await send('Page.addScriptToEvaluateOnNewDocument', { source: `Object.defineProperty(window, 'localStorage', { get() { throw new Error('Storage unavailable in test'); } });` });
+  await send('Page.reload'); await delay(500);
+  await click('#layers-toggle'); await click('[data-layer="maritime"]');
+  assert.equal(await evaluate('getComputedStyle(document.getElementById("maritime-indicators")).display'), 'none');
+  assert.equal(await evaluate('document.getElementById("preference-status").textContent'), '设置仅在本次访问有效');
+  await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: blockedStorage.identifier });
+  await send('Page.reload'); await delay(500);
+  await click('#layers-toggle'); await click('#layers-defaults'); await click('#layers-close');
+  report.layerPreferences.touch = true; report.layerPreferences.shortScreen = true; report.layerPreferences.storageFallback = true;
   fs.writeFileSync(path.join(output, 'map-validation.json'), JSON.stringify(report, null, 2).replace(/\n/g, '\r\n'));
   console.log(JSON.stringify(report));
   await send('Browser.close');

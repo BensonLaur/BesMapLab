@@ -8,10 +8,18 @@
   const base = { w: 1728, h: 972 };
   const view = { x: 0, y: 0, w: base.w, h: base.h };
   const state = { central: 0, selected: null };
+  const layerDefaults = { countryLabels: true, oceanLabels: true, grid: true, coordinates: true, maritime: true, maritimeChina: true };
+  const layerStorageKey = 'besmaplab.layers.v1';
+  const layers = { ...layerDefaults };
+  let preferencesSaved = true;
+  try {
+    const saved = JSON.parse(localStorage.getItem(layerStorageKey));
+    for (const key of Object.keys(layers)) if (typeof saved?.[key] === 'boolean') layers[key] = saved[key];
+  } catch { preferencesSaved = false; /* Storage restrictions must not disable the map. */ }
   const palette = ['#dfe4de', '#d0dfd7', '#ead9bb', '#d8d5e7', '#cadde8', '#ecd4cf', '#e2e4c8', '#c6dfd4'];
   let fitSize, animation = 0, pendingDraw = 0, drag = null, suppressClick = false;
   const pointers = new Map();
-  let pinch = null;
+  let pinch = null, cursor = null, coordinateBoxes = [];
 
   function decode(id) {
     const topology = JSON.parse(document.getElementById(id).textContent);
@@ -27,7 +35,7 @@
   const outlinePath = path({ type: 'Sphere' });
   // Keep the world outline and projection scale fixed while only longitude rotates.
   for (const id of ['ocean', 'outline', 'clip-outline']) document.getElementById(id).setAttribute('d', outlinePath);
-  const graticule = d3.geoGraticule().step([30, 30])();
+  const worldBounds = path.bounds({ type: 'Sphere' });
   const countries = d3.select('#countries').selectAll('path').data(detail.countries).join('path')
     .attr('class', 'country').attr('data-code', f => f.properties.code)
     .attr('data-id', f => f.id).attr('data-name', f => f.properties.name)
@@ -64,13 +72,123 @@
     svg.style.setProperty('--maritime-opacity', .16 + .36 * seaEmphasis);
     svg.style.setProperty('--maritime-china-opacity', .4 + .32 * seaEmphasis);
     meter.textContent = `${Math.round(zoomLevel() * 100)}%`;
+    drawGraticule();
     layoutLabels();
+    updateCoordinates();
   }
   function fitView() {
     fitSize = fitDimensions();
     view.w = fitSize.w; view.h = fitSize.h;
     view.x = (base.w - view.w) / 2; view.y = (base.h - view.h) / 2;
     renderView();
+  }
+  function overlayBoxes() {
+    return [...document.querySelectorAll('.heading, .longitude, .selection, .controls, .layers-toggle, .layers-panel, .hint, .source')]
+      .map(element => element.getBoundingClientRect()).filter(box => box.width && box.height)
+      .map(box => ({ left: box.left - 5, right: box.right + 5, top: box.top - 5, bottom: box.bottom + 5 }));
+  }
+  function overlaps(a, b) { return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top; }
+  function formatDegrees(value, axis, decimals = 0) {
+    const rounded = +Math.abs(value).toFixed(decimals);
+    const suffix = rounded === 0 || (axis === 'longitude' && rounded === 180) ? ''
+      : axis === 'longitude' ? (value < 0 ? 'W' : 'E') : (value < 0 ? 'S' : 'N');
+    return `${rounded.toFixed(decimals)}°${suffix}`;
+  }
+  function drawGraticule() {
+    const width = viewport.clientWidth, height = viewport.clientHeight, scale = width / view.w;
+    const coordinateGroup = d3.select('#coordinate-labels');
+    const grid = document.getElementById('grid');
+    coordinateBoxes = [];
+    if (!layers.grid && !layers.coordinates) return;
+    const top = Math.max(view.y, worldBounds[0][1]), bottom = Math.min(view.y + view.h, worldBounds[1][1]);
+    if (top >= bottom || view.x >= worldBounds[1][0] || view.x + view.w <= worldBounds[0][0]) {
+      grid.setAttribute('d', ''); coordinateGroup.selectAll('*').remove(); return;
+    }
+    const center = wrap(state.central), centerX = projection.translate()[0];
+    const topLat = projection.invert([centerX, top])[1], bottomLat = projection.invert([centerX, bottom])[1];
+    const middleLat = (topLat + bottomLat) / 2;
+    // Robinson's latitude is independent of longitude. Work in unwrapped longitudes
+    // around the central meridian so zooming across the date line cannot skip ticks.
+    function unitsPerLongitude(latitude) {
+      return Math.abs(projection([wrap(center + 90), latitude])[0] - centerX) / 90;
+    }
+    const latitudes = [topLat, bottomLat, clamp(0, bottomLat, topLat)];
+    const leftDelta = Math.max(-180, Math.min(...latitudes.map(lat => (view.x - centerX) / unitsPerLongitude(lat))));
+    const rightDelta = Math.min(180, Math.max(...latitudes.map(lat => (view.x + view.w - centerX) / unitsPerLongitude(lat))));
+    if (leftDelta >= rightDelta) { grid.setAttribute('d', ''); coordinateGroup.selectAll('*').remove(); return; }
+    const steps = [.1, .2, .5, 1, 2, 5, 10, 15, 30, 60, 90];
+    const longitudePixels = unitsPerLongitude(middleLat) * scale;
+    const sampleSouth = Math.max(-89.999, middleLat - .25), sampleNorth = Math.min(89.999, middleLat + .25);
+    const latitudePixels = Math.abs(projection([center, sampleSouth])[1] - projection([center, sampleNorth])[1])
+      * scale / (sampleNorth - sampleSouth);
+    const lonStep = steps.find(step => step * longitudePixels >= 80) || 90;
+    const latStep = steps.find(step => step * latitudePixels >= (width < 600 ? 50 : 75)) || 90;
+    svg.dataset.longitudeStep = lonStep; svg.dataset.latitudeStep = latStep;
+    function ticks(from, to, step) {
+      return d3.range(Math.ceil((from - 1e-7) / step), Math.floor((to + 1e-7) / step) + 1).map(n => +(n * step).toFixed(6));
+    }
+    function samples(from, to) { return [...d3.range(from, to, 2), to]; }
+    const meridians = ticks(center + leftDelta, center + rightDelta, lonStep);
+    const parallels = ticks(Math.max(-89.999, bottomLat), Math.min(89.999, topLat), latStep);
+    const lines = meridians.map(lon => samples(bottomLat, topLat).map(lat => [wrap(lon), lat]));
+    // Parallel samples preserve constant latitude; their sparse endpoints alone would
+    // be interpreted by D3 as great-circle arcs and bow away from the correct latitude.
+    for (const lat of parallels) lines.push(samples(center + Math.max(-179.9999, leftDelta),
+      center + Math.min(179.9999, rightDelta)).map(lon => [wrap(lon), lat]));
+    grid.setAttribute('d', path({ type: 'MultiLineString', coordinates: lines }) || '');
+    if (!layers.coordinates) return;
+    const occupied = overlayBoxes(), items = [];
+    function add(axis, value, x, y, anchor, tick) {
+      const text = formatDegrees(value, axis, (axis === 'longitude' ? lonStep : latStep) < 1 ? 1 : 0);
+      const textWidth = text.length * 6.3 + 6;
+      const left = anchor === 'end' ? x - textWidth : anchor === 'start' ? x : x - textWidth / 2;
+      const box = { left, right: left + textWidth, top: y - 9, bottom: y + 9 };
+      if (box.left < 5 || box.right > width - 5 || box.top < 5 || box.bottom > height - 5
+          || occupied.some(other => overlaps(box, other))) return;
+      occupied.push(box); coordinateBoxes.push(box);
+      items.push({ axis, value, text, x: view.x + x / scale, y: view.y + y / scale, anchor,
+        tick: tick.map(([sx, sy]) => [view.x + sx / scale, view.y + sy / scale]) });
+    }
+    const tickY = Math.max(88, (worldBounds[0][1] - view.y) * scale);
+    if (tickY < height - 40 && view.y + tickY / scale <= worldBounds[1][1]) {
+      const tickLat = projection.invert([centerX, view.y + tickY / scale])[1];
+      for (const lon of [...meridians].sort((a, b) => Math.abs(a - center) - Math.abs(b - center))) {
+        const x = (projection([wrap(lon), tickLat])[0] - view.x) * scale;
+        add('longitude', wrap(lon), x, tickY - 11, 'middle', [[x, tickY - 3], [x, tickY + 3]]);
+      }
+    }
+    for (const lat of parallels) {
+      const y = (projection([center, lat])[1] - view.y) * scale;
+      const edge = (centerX - 180 * unitsPerLongitude(lat) - view.x) * scale;
+      const outside = edge >= 62, x = outside ? edge - 9 : 17, tickX = Math.max(8, edge);
+      add('latitude', lat, x, y, outside ? 'end' : 'start', [[tickX - 3, y], [tickX + 3, y]]);
+    }
+    const marks = coordinateGroup.selectAll('g').data(items, d => `${d.axis}-${d.value}`).join(enter => {
+      const group = enter.append('g');
+      group.append('path').attr('class', 'coordinate-tick');
+      group.append('text').attr('class', 'coordinate-label');
+      return group;
+    });
+    marks.select('text').attr('x', d => d.x).attr('y', d => d.y).attr('text-anchor', d => d.anchor)
+      .attr('data-axis', d => d.axis).attr('data-value', d => d.value).text(d => d.text);
+    marks.select('path').attr('d', d => `M${d.tick[0].join(',')}L${d.tick[1].join(',')}`);
+  }
+  function updateCoordinates() {
+    const readout = document.getElementById('coordinate-readout');
+    if (!layers.coordinates) return;
+    let location;
+    if (cursor) {
+      const point = mapPoint(cursor.x, cursor.y);
+      if (document.getElementById('ocean').isPointInFill(point)) location = projection.invert([point.x, point.y]);
+    }
+    if (!location || !location.every(Number.isFinite)) {
+      readout.textContent = '指向或轻触地图查看经纬度';
+      delete readout.dataset.longitude; delete readout.dataset.latitude;
+    } else {
+      const lon = wrap(location[0]), lat = location[1];
+      readout.textContent = `${formatDegrees(lon, 'longitude', 2)} · ${formatDegrees(lat, 'latitude', 2)}`;
+      readout.dataset.longitude = lon; readout.dataset.latitude = lat;
+    }
   }
   function layoutLabels() {
     const scale = viewport.clientWidth / view.w;
@@ -84,18 +202,17 @@
     }
     labels.each(function(f) {
       const selected = state.selected === f.id;
-      if (!f.properties.label && !selected) { this.style.display = 'none'; return; }
+      if (!layers.countryLabels || (!f.properties.label && !selected)) { this.style.display = 'none'; return; }
       place(this, f.properties.point, [...f.properties.name].length * 10.5 + 5, 11, 11,
         selected ? -1 : f.properties.labelRank || 6);
     });
-    oceans.each(function(d) { place(this, d.point, [...d.name].length * 18 + 4, 28, 8, 0); });
+    if (layers.oceanLabels) oceans.each(function(d) { place(this, d.point, [...d.name].length * 18 + 4, 28, 8, 0); });
     // Fixed-size text needs screen-space spacing. Selection wins, then upstream label rank.
-    const occupied = [];
+    const obstacles = [...coordinateBoxes, ...overlayBoxes()], occupied = [];
     for (const box of candidates.sort((a, b) => a.priority - b.priority)) {
       const onScreen = box.right > 0 && box.left < viewport.clientWidth && box.bottom > 0 && box.top < viewport.clientHeight;
-      const overlaps = occupied.some(other => box.left < other.right && box.right > other.left
-        && box.top < other.bottom && box.bottom > other.top);
-      const visible = box.priority < 0 || !onScreen || !overlaps;
+      const crowded = occupied.some(other => overlaps(box, other));
+      const visible = !onScreen || (!obstacles.some(other => overlaps(box, other)) && (box.priority < 0 || !crowded));
       box.element.style.display = visible ? '' : 'none';
       if (visible && onScreen) occupied.push(box);
     }
@@ -109,8 +226,9 @@
     // These short, sparse lines keep full detail while rotating and share D3's seam clipping.
     maritimeIndicators.attr('d', path);
     maritimeChina.attr('d', path);
-    document.getElementById('grid').setAttribute('d', path(graticule));
+    drawGraticule();
     layoutLabels();
+    updateCoordinates();
     const central = wrap(state.central);
     longitude.textContent = `中央经线 ${Math.abs(central).toFixed(1)}°${central > .05 ? 'E' : central < -.05 ? 'W' : ''}`;
     svg.dataset.centralLongitude = central;
@@ -183,6 +301,7 @@
   viewport.addEventListener('pointerdown', event => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     stopMotion();
+    cursor = { x: event.clientX, y: event.clientY }; updateCoordinates();
     if (!pointers.size) suppressClick = false;
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointers.size === 1) startDrag(event);
@@ -193,6 +312,7 @@
     }
   });
   viewport.addEventListener('pointermove', event => {
+    cursor = { x: event.clientX, y: event.clientY }; updateCoordinates();
     if (!pointers.has(event.pointerId)) return;
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointers.size === 2 && pinch) {
@@ -232,6 +352,9 @@
   viewport.addEventListener('pointerup', release);
   viewport.addEventListener('pointercancel', release);
   viewport.addEventListener('lostpointercapture', release);
+  viewport.addEventListener('pointerleave', event => {
+    if (event.pointerType === 'mouse' && !pointers.size) { cursor = null; updateCoordinates(); }
+  });
   function reset() {
     stopMotion(); state.central = 0; state.selected = null;
     countries.classed('selected', false); labels.classed('selected', false);
@@ -240,7 +363,43 @@
   document.getElementById('zoom-in').addEventListener('click', () => zoomCenter(1.6));
   document.getElementById('zoom-out').addEventListener('click', () => zoomCenter(1 / 1.6));
   document.getElementById('reset').addEventListener('click', reset);
+  const layerPanel = document.getElementById('layers-panel');
+  const layerToggle = document.getElementById('layers-toggle');
+  function setPanel(open, restoreFocus = false) {
+    layerPanel.hidden = !open; layerToggle.setAttribute('aria-expanded', open);
+    if (restoreFocus) layerToggle.focus();
+    drawGraticule(); layoutLabels();
+  }
+  function applyLayers(save = false) {
+    const targets = { countryLabels: 'country-labels', oceanLabels: 'ocean-labels', grid: 'grid',
+      coordinates: 'coordinate-labels', maritime: 'maritime-indicators', maritimeChina: 'maritime-china' };
+    for (const [key, id] of Object.entries(targets)) {
+      document.getElementById(id).style.display = layers[key] ? '' : 'none';
+      layerPanel.querySelector(`[data-layer="${key}"]`).checked = layers[key];
+    }
+    document.getElementById('coordinate-readout').hidden = !layers.coordinates;
+    if (save) {
+      try { localStorage.setItem(layerStorageKey, JSON.stringify(layers)); preferencesSaved = true; }
+      catch { preferencesSaved = false; }
+    }
+    document.getElementById('preference-status').textContent = preferencesSaved ? '偏好保存在此浏览器' : '设置仅在本次访问有效';
+    drawGraticule(); layoutLabels(); updateCoordinates();
+  }
+  layerToggle.addEventListener('click', () => setPanel(layerPanel.hidden));
+  document.getElementById('layers-close').addEventListener('click', () => setPanel(false, true));
+  layerPanel.addEventListener('change', event => {
+    const key = event.target.dataset.layer;
+    if (Object.hasOwn(layers, key)) { layers[key] = event.target.checked; applyLayers(true); }
+  });
+  document.getElementById('layers-defaults').addEventListener('click', () => {
+    Object.assign(layers, layerDefaults); applyLayers(true);
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!layerPanel.hidden && !layerPanel.contains(event.target) && !layerToggle.contains(event.target)) setPanel(false);
+  });
   window.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !layerPanel.hidden) { setPanel(false, true); return; }
+    if (event.target.closest('#layers-panel, input, select, textarea, [contenteditable]')) return;
     if (event.key === '+' || event.key === '=') zoomCenter(1.6);
     else if (event.key === '-' || event.key === '_') zoomCenter(1 / 1.6);
     else if (event.key === '0') reset();
@@ -250,5 +409,5 @@
     fitSize = fitDimensions(); view.w = fitSize.w / zoom; view.h = fitSize.h / zoom;
     view.x = x - view.w / 2; view.y = y - view.h / 2; renderView();
   });
-  fitView(); draw(true);
+  fitView(); applyLayers(); draw(true);
 })();

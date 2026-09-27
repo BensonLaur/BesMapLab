@@ -17,20 +17,41 @@ __STYLES__
       <defs><clipPath id="world-clip"><path id="clip-outline" /></clipPath></defs>
       <path id="ocean" fill="#d9ecf2" />
       <g id="contents" clip-path="url(#world-clip)">
-        <path id="grid" fill="none" stroke="#b8d4de" stroke-width=".5" opacity=".65" vector-effect="non-scaling-stroke" pointer-events="none" />
         <g id="countries"></g>
         <path id="lakes" fill="#d9ecf2" stroke="#a4c6d0" stroke-width=".4" vector-effect="non-scaling-stroke" pointer-events="none" />
+        <path id="grid" fill="none" stroke="#9abecb" stroke-width=".5" opacity=".5" vector-effect="non-scaling-stroke" pointer-events="none" />
         <g id="maritime-indicators" aria-label="海上界线指示"></g>
         <g id="maritime-china" aria-label="中国补充海上界线指示"></g>
         <g id="ocean-labels"></g>
         <g id="country-labels"></g>
       </g>
       <path id="outline" fill="none" stroke="#97bcc9" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none" />
+      <g id="coordinate-labels" aria-label="经纬度刻度" pointer-events="none"></g>
     </svg>
   </main>
   <div class="heading"><h1>BesMapLab</h1><span>地图实验室 · 转动世界，看懂地图</span></div>
   <div id="longitude" class="longitude">中央经线 0°</div>
   <div id="selection" class="selection" hidden aria-live="polite"></div>
+  <button id="layers-toggle" class="layers-toggle" type="button" aria-expanded="false" aria-controls="layers-panel">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z M3 12l9 5 9-5 M3 16l9 5 9-5" /></svg>图层
+  </button>
+  <section id="layers-panel" class="layers-panel" aria-labelledby="layers-heading" hidden>
+    <div class="panel-heading"><h2 id="layers-heading">显示图层</h2><button id="layers-close" type="button" aria-label="关闭图层面板">×</button></div>
+    <p class="panel-intro">选择想在地图上看到的内容</p>
+    <fieldset><legend>地名</legend>
+      <label class="layer-option"><span>国家 / 地区名称</span><input type="checkbox" role="switch" data-layer="countryLabels" checked></label>
+      <label class="layer-option"><span>海洋名称</span><input type="checkbox" role="switch" data-layer="oceanLabels" checked></label>
+    </fieldset>
+    <fieldset><legend>经纬度</legend>
+      <label class="layer-option"><span>经纬网</span><input type="checkbox" role="switch" data-layer="grid" checked></label>
+      <label class="layer-option"><span>经纬度刻度与坐标</span><input type="checkbox" role="switch" data-layer="coordinates" checked></label>
+    </fieldset>
+    <fieldset><legend>海域参考</legend>
+      <label class="layer-option"><span>海上界线指示</span><input type="checkbox" role="switch" data-layer="maritime" checked></label>
+      <label class="layer-option"><span>中国补充线</span><input type="checkbox" role="switch" data-layer="maritimeChina" checked></label>
+    </fieldset>
+    <div class="panel-footer"><button id="layers-defaults" type="button">恢复默认</button><span id="preference-status">偏好保存在此浏览器</span></div>
+  </section>
   <div class="controls" role="group" aria-label="视图控制">
     <button id="zoom-in" type="button" aria-label="放大" title="放大（+）">+</button>
     <div id="zoom">100%</div>
@@ -38,7 +59,7 @@ __STYLES__
     <button id="reset" type="button" aria-label="恢复世界全图" title="恢复世界全图（0）">⌖</button>
   </div>
   <div class="footer">
-    <div class="hint">点击国家：转到中央　·　左右拖动：旋转世界<br>滚轮：鼠标处缩放　·　Shift + 拖动：平移视图　·　0：重置</div>
+    <div class="hint">点击国家：转到中央　·　左右拖动：旋转世界<br>滚轮：鼠标处缩放　·　Shift + 拖动：平移视图　·　0：重置<output id="coordinate-readout">指向或轻触地图查看经纬度</output></div>
     <div class="source">罗宾森投影 · 海上界线指示含中国补充线<br><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth 1:50m</a> · <a href="https://d3js.org/d3-geo/projection" target="_blank" rel="noopener">D3</a></div>
   </div>
   <!--
