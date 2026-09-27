@@ -64,7 +64,7 @@ function build() {
   const notices = [read('LICENSE'), read('THIRD_PARTY_NOTICES.md'),
     ...manifest.vendor.map(item => `${item.package} ${item.version}\n${read(item.licensePath)}`)].join('\n\n');
   const replacements = {
-    __STYLES__: read('src/styles.css'), __APP__: read('src/map.js'),
+    __STYLES__: read('src/styles.css'), __APP__: read('src/projections.js') + '\n' + read('src/map.js'),
     __D3__: read('vendor/d3.min.js'), __PROJECTIONS__: read('vendor/d3-geo-projection.min.js'),
     __TOPOJSON__: read('vendor/topojson-client.min.js'),
     __DETAIL__: JSON.stringify(detail), __MOTION__: JSON.stringify(motion),

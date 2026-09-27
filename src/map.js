@@ -7,7 +7,12 @@
   const longitude = document.getElementById('longitude');
   const base = { w: 1728, h: 972 };
   const view = { x: 0, y: 0, w: base.w, h: base.h };
-  const state = { central: 0, selected: null };
+  const state = { central: 0, selected: null, projection: 'robinson' };
+  const projectionStorageKey = 'besmaplab.projection.v1';
+  const projectionSelect = document.getElementById('projection-select');
+  for (const [id, definition] of Object.entries(BesMapProjections.definitions)) {
+    projectionSelect.add(new Option(definition.label, id));
+  }
   const layerDefaults = { countryLabels: true, oceanLabels: true, grid: true, coordinates: true, maritime: true, maritimeChina: true };
   const layerStorageKey = 'besmaplab.layers.v1';
   const layers = { ...layerDefaults };
@@ -16,6 +21,10 @@
     const saved = JSON.parse(localStorage.getItem(layerStorageKey));
     for (const key of Object.keys(layers)) if (typeof saved?.[key] === 'boolean') layers[key] = saved[key];
   } catch { preferencesSaved = false; /* Storage restrictions must not disable the map. */ }
+  try {
+    const saved = localStorage.getItem(projectionStorageKey);
+    if (Object.hasOwn(BesMapProjections.definitions, saved)) state.projection = saved;
+  } catch { preferencesSaved = false; }
   const palette = ['#dfe4de', '#d0dfd7', '#ead9bb', '#d8d5e7', '#cadde8', '#ecd4cf', '#e2e4c8', '#c6dfd4'];
   let fitSize, animation = 0, pendingDraw = 0, drag = null, suppressClick = false;
   const pointers = new Map();
@@ -30,12 +39,22 @@
   }
   const detail = decode('detail-data');
   const motion = decode('motion-data');
-  const projection = d3.geoRobinson().precision(.35).fitExtent([[64, 98], [1664, 854]], { type: 'Sphere' });
+  let projection = BesMapProjections.create(state.projection);
   const path = d3.geoPath(projection).digits(3);
-  const outlinePath = path({ type: 'Sphere' });
-  // Keep the world outline and projection scale fixed while only longitude rotates.
-  for (const id of ['ocean', 'outline', 'clip-outline']) document.getElementById(id).setAttribute('d', outlinePath);
-  const worldBounds = path.bounds({ type: 'Sphere' });
+  let worldBounds;
+  function projectionDefinition() { return BesMapProjections.definitions[state.projection]; }
+  function configureProjection() {
+    projection.rotate([-state.central, 0, 0]); path.projection(projection);
+    const outlinePath = path({ type: 'Sphere' });
+    // Only a projection switch changes the world outline; longitude rotation keeps it fixed.
+    for (const id of ['ocean', 'outline', 'clip-outline']) document.getElementById(id).setAttribute('d', outlinePath);
+    worldBounds = path.bounds({ type: 'Sphere' });
+    projectionSelect.value = state.projection;
+    document.getElementById('projection-note').textContent = projectionDefinition().description;
+    document.getElementById('projection-source').textContent = projectionDefinition().name;
+    svg.dataset.projection = state.projection;
+  }
+  configureProjection();
   const countries = d3.select('#countries').selectAll('path').data(detail.countries).join('path')
     .attr('class', 'country').attr('data-code', f => f.properties.code)
     .attr('data-id', f => f.id).attr('data-name', f => f.properties.name)
@@ -58,7 +77,9 @@
   const wrap = value => ((value + 180) % 360 + 360) % 360 - 180;
   function fitDimensions() {
     const ratio = Math.max(1, viewport.clientWidth) / Math.max(1, viewport.clientHeight);
-    const w = Math.max(base.w, base.h * ratio);
+    // A square Mercator world needs less horizontal padding than an oval world on phones.
+    const worldWidth = worldBounds[1][0] - worldBounds[0][0];
+    const w = Math.max(worldWidth + 128, base.h * ratio);
     return { w, h: w / ratio };
   }
   function zoomLevel() { return fitSize.w / view.w; }
@@ -107,7 +128,7 @@
     const center = wrap(state.central), centerX = projection.translate()[0];
     const topLat = projection.invert([centerX, top])[1], bottomLat = projection.invert([centerX, bottom])[1];
     const middleLat = (topLat + bottomLat) / 2;
-    // Robinson's latitude is independent of longitude. Work in unwrapped longitudes
+    // All three projections keep latitude independent of longitude. Use unwrapped longitudes
     // around the central meridian so zooming across the date line cannot skip ticks.
     function unitsPerLongitude(latitude) {
       return Math.abs(projection([wrap(center + 90), latitude])[0] - centerX) / 90;
@@ -118,7 +139,8 @@
     if (leftDelta >= rightDelta) { grid.setAttribute('d', ''); coordinateGroup.selectAll('*').remove(); return; }
     const steps = [.1, .2, .5, 1, 2, 5, 10, 15, 30, 60, 90];
     const longitudePixels = unitsPerLongitude(middleLat) * scale;
-    const sampleSouth = Math.max(-89.999, middleLat - .25), sampleNorth = Math.min(89.999, middleLat + .25);
+    const latitudeLimit = projectionDefinition().latitudeLimit - .001;
+    const sampleSouth = Math.max(-latitudeLimit, middleLat - .25), sampleNorth = Math.min(latitudeLimit, middleLat + .25);
     const latitudePixels = Math.abs(projection([center, sampleSouth])[1] - projection([center, sampleNorth])[1])
       * scale / (sampleNorth - sampleSouth);
     const lonStep = steps.find(step => step * longitudePixels >= 80) || 90;
@@ -194,6 +216,7 @@
     const scale = viewport.clientWidth / view.w;
     const candidates = [];
     function place(element, point, width, top, bottom, priority) {
+      if (Math.abs(point[1]) > projectionDefinition().latitudeLimit) { element.style.display = 'none'; return; }
       const [x, y] = projection(point);
       element.setAttribute('x', x); element.setAttribute('y', y);
       const screenX = (x - view.x) * scale, screenY = (y - view.y) * scale;
@@ -241,6 +264,31 @@
     cancelAnimationFrame(animation); animation = 0;
     cancelAnimationFrame(pendingDraw); pendingDraw = 0;
   }
+  function changeProjection(id) {
+    if (!Object.hasOwn(BesMapProjections.definitions, id) || id === state.projection) return;
+    stopMotion();
+    const captures = [...pointers.keys()];
+    pointers.clear(); drag = null; pinch = null; viewport.classList.remove('dragging');
+    for (const pointerId of captures) if (viewport.hasPointerCapture(pointerId)) viewport.releasePointerCapture(pointerId);
+    const center = new DOMPoint(view.x + view.w / 2, view.y + view.h / 2);
+    let anchor = document.getElementById('ocean').isPointInFill(center) ? projection.invert([center.x, center.y]) : null;
+    if (!anchor || !anchor.every(Number.isFinite)) {
+      anchor = detail.countries.find(feature => feature.id === state.selected)?.properties.point || [wrap(state.central), 0];
+    }
+    const zoom = zoomLevel();
+    state.projection = id;
+    projection = BesMapProjections.create(id); configureProjection();
+    fitSize = fitDimensions(); view.w = fitSize.w / zoom; view.h = fitSize.h / zoom;
+    // Preserve geographic focus, not old projected x/y. Mercator cannot include the poles.
+    const latitudeLimit = projectionDefinition().latitudeLimit - 1e-6;
+    const point = projection([anchor[0], clamp(anchor[1], -latitudeLimit, latitudeLimit)]);
+    view.x = point[0] - view.w / 2; view.y = point[1] - view.h / 2;
+    try { localStorage.setItem(projectionStorageKey, id); preferencesSaved = true; }
+    catch { preferencesSaved = false; }
+    document.getElementById('preference-status').textContent = preferencesSaved ? '偏好保存在此浏览器' : '设置仅在本次访问有效';
+    renderView(); draw(true);
+  }
+  projectionSelect.addEventListener('change', event => changeProjection(event.target.value));
   function selectCountry(feature) {
     stopMotion();
     state.selected = feature.id;

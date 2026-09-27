@@ -90,6 +90,12 @@ async function launchBrowser() {
     await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await delay(80);
   }
+  async function selectProjection(id) {
+    await evaluate(`(() => {
+      const select = document.getElementById('projection-select');
+      select.value = ${JSON.stringify(id)}; select.dispatchEvent(new Event('change', { bubbles: true }));
+    })()`);
+  }
   await send('Runtime.enable');
   await send('Page.enable');
   // Enforce that opening the file needs no network resources.
@@ -140,7 +146,7 @@ async function launchBrowser() {
   }
   const coordinateMetricsExpression = `(() => {
     const map = document.getElementById('map');
-    const projection = d3.geoRobinson().fitExtent([[64, 98], [1664, 854]], { type: 'Sphere' })
+    const projection = BesMapProjections.create(map.dataset.projection)
       .rotate([-Number(map.dataset.centralLongitude), 0, 0]);
     const elements = [...document.querySelectorAll('.coordinate-label')];
     const roundTripErrors = elements.map(element => {
@@ -387,12 +393,124 @@ async function launchBrowser() {
   const blockedStorage = await send('Page.addScriptToEvaluateOnNewDocument', { source: `Object.defineProperty(window, 'localStorage', { get() { throw new Error('Storage unavailable in test'); } });` });
   await send('Page.reload'); await delay(500);
   await click('#layers-toggle'); await click('[data-layer="maritime"]');
+  await selectProjection('equalEarth');
+  assert.equal(await evaluate('document.getElementById("map").dataset.projection'), 'equalEarth');
   assert.equal(await evaluate('getComputedStyle(document.getElementById("maritime-indicators")).display'), 'none');
   assert.equal(await evaluate('document.getElementById("preference-status").textContent'), '设置仅在本次访问有效');
   await send('Page.removeScriptToEvaluateOnNewDocument', { identifier: blockedStorage.identifier });
   await send('Page.reload'); await delay(500);
   await click('#layers-toggle'); await click('#layers-defaults'); await click('#layers-close');
   report.layerPreferences.touch = true; report.layerPreferences.shortScreen = true; report.layerPreferences.storageFallback = true;
+  // Projection switches keep geographic focus and layer choices while changing geometry.
+  await selectProjection('robinson');
+  await click('#reset');
+  await evaluate('document.getElementById("projection-select").focus()');
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 });
+  assert.equal(await evaluate('document.getElementById("map").dataset.projection'), 'equalEarth', 'Projection selector must work from the keyboard');
+  await selectProjection('robinson');
+  await click('#layers-toggle'); await click('[data-layer="maritime"]'); await click('#layers-close');
+  await evaluate(`document.querySelector('.country[data-code="TWN"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))`);
+  await delay(100);
+  await send('Input.dispatchMouseEvent', { type: 'mouseWheel', x: 800, y: 410, deltaX: 0, deltaY: -1100 });
+  const focusExpression = `(() => {
+    const map = document.getElementById('map'), view = map.viewBox.baseVal;
+    const p = BesMapProjections.create(map.dataset.projection).rotate([-Number(map.dataset.centralLongitude), 0, 0]);
+    return { point: p.invert([view.x + view.width / 2, view.y + view.height / 2]),
+      central: +map.dataset.centralLongitude, selected: document.querySelector('.country.selected')?.dataset.code,
+      zoom: document.getElementById('zoom').textContent, projection: map.dataset.projection };
+  })()`;
+  const focusBefore = await evaluate(focusExpression);
+  for (const id of ['equalEarth', 'mercator', 'robinson']) {
+    await selectProjection(id);
+    const current = await evaluate(focusExpression);
+    assert.equal(current.selected, 'TWN'); assert.equal(current.central, focusBefore.central); assert.equal(current.zoom, focusBefore.zoom);
+    assert(Math.hypot(current.point[0] - focusBefore.point[0], current.point[1] - focusBefore.point[1]) < .0001,
+      'Projection switch must preserve the geographic center of a zoomed view');
+    assert.equal((await evaluate(layerStateExpression)).maritime, false);
+    assertCoordinates(await evaluate(coordinateMetricsExpression));
+    assertFixedLabels(initialLabelMetrics, await evaluate(labelMetricsExpression), ['country', 'ocean'], 1);
+  }
+  await selectProjection('equalEarth'); await send('Page.reload'); await delay(500);
+  assert.equal(await evaluate('document.getElementById("projection-select").value'), 'equalEarth');
+  await click('#reset');
+  assert.equal(await evaluate('document.getElementById("map").dataset.projection'), 'equalEarth');
+  assert.equal((await evaluate(layerStateExpression)).maritime, false);
+  await click('#layers-toggle'); await click('#layers-defaults'); await click('#layers-close');
+  report.projections = [];
+  const geometryHealthExpression = `(() => {
+    const paths = [...document.querySelectorAll('#map path')];
+    return paths.every(element => !/NaN|Infinity/.test(element.getAttribute('d') || ''));
+  })()`;
+  for (const id of ['robinson', 'equalEarth', 'mercator']) {
+    await selectProjection(id); await click('#reset');
+    const full = await evaluate(snapshotExpression);
+    await evaluate(`document.querySelector('.country[data-code="CHN"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))`);
+    await delay(100);
+    const china = await evaluate(snapshotExpression);
+    assert.equal(china.longitude, 104); assert.equal(china.x, 864);
+    assert.equal(china.outline, full.outline); assert.equal(china.y, full.y);
+    assertCoordinates(await evaluate(coordinateMetricsExpression));
+    assert.equal(await evaluate(geometryHealthExpression), true);
+    await screenshot(`projection-${id}.png`);
+    // Horizontal dragging, date-line clipping and maritime lines use the current projection.
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: 800, y: 440, button: 'left', clickCount: 1 });
+    for (let i = 1; i <= 8; i++) {
+      await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 800 - i * 40, y: 440, button: 'left', buttons: 1 });
+      await delay(20);
+    }
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 480, y: 440, button: 'left', clickCount: 1 });
+    await delay(100);
+    const dragResult = await evaluate(snapshotExpression);
+    assert.notEqual(dragResult.longitude, china.longitude); assert.equal(dragResult.outline, full.outline);
+    assert(dragResult.maritime.every(layer => layer.open && layer.geometry.length));
+    assertCoordinates(await evaluate(coordinateMetricsExpression));
+    await screenshot(`projection-${id}-rotated.png`);
+    await click('#reset');
+    await evaluate(`document.querySelector('.country[data-code="CHN"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))`);
+    await delay(100);
+    const zoomPoint = await evaluate(`(() => {
+      const label = document.querySelector('.country-label[data-code="CHN"]');
+      const p = new DOMPoint(+label.getAttribute('x'), +label.getAttribute('y')).matrixTransform(label.getScreenCTM());
+      return { x: p.x, y: p.y };
+    })()`);
+    await send('Input.dispatchMouseEvent', { type: 'mouseWheel', ...zoomPoint, deltaX: 0, deltaY: -10000 });
+    assert.equal(await evaluate('document.getElementById("zoom").textContent'), '6400%');
+    assertCoordinates(await evaluate(coordinateMetricsExpression));
+    assertFixedLabels(initialLabelMetrics, await evaluate(labelMetricsExpression), ['ocean']);
+    assert.equal(await evaluate(geometryHealthExpression), true);
+    await screenshot(`projection-${id}-zoom.png`);
+    const measurement = await evaluate(`(() => {
+      const projection = BesMapProjections.create('${id}'), path = d3.geoPath(projection), bounds = path.bounds({ type: 'Sphere' });
+      const circle = lat => d3.geoCircle().center([0, lat]).radius(2).precision(.5)();
+      return { id: '${id}', width: bounds[1][0] - bounds[0][0], height: bounds[1][1] - bounds[0][1],
+        sameAreaRatio: path.area(circle(60)) / path.area(circle(0)), outline: document.getElementById('outline').getAttribute('d') };
+    })()`);
+    report.projections.push(measurement);
+  }
+  assert.equal(new Set(report.projections.map(item => item.outline)).size, 3, 'Each projection must have a distinct world outline');
+  assert(Math.abs(report.projections.find(item => item.id === 'equalEarth').sameAreaRatio - 1) < .001, 'Equal Earth should preserve equal geographic areas');
+  const mercator = report.projections.find(item => item.id === 'mercator');
+  assert(Math.abs(mercator.width - mercator.height) < .001 && mercator.sameAreaRatio > 3.9, 'Mercator should use a square extent and enlarge high latitudes');
+  for (const item of report.projections) delete item.outline;
+  await click('#reset');
+  assert.equal(await evaluate(`(() => {
+    const p = BesMapProjections.create('mercator');
+    return !document.getElementById('ocean').isPointInFill(new DOMPoint(...p([0, 89])));
+  })()`), true, 'Mercator must clip latitudes outside its visible limit');
+  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  for (const id of ['equalEarth', 'mercator']) {
+    await selectProjection(id); await click('#reset');
+    assertCoordinates(await evaluate(coordinateMetricsExpression));
+    assert.equal(await evaluate(`(() => {
+      const box = document.getElementById('projection-select').getBoundingClientRect();
+      return box.left >= 0 && box.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth;
+    })()`), true);
+    await screenshot(`projection-${id}-mobile.png`);
+  }
+  await evaluate(`localStorage.setItem('besmaplab.projection.v1', 'unknown-projection')`);
+  await send('Page.reload'); await delay(500);
+  assert.equal(await evaluate('document.getElementById("map").dataset.projection'), 'robinson');
   fs.writeFileSync(path.join(output, 'map-validation.json'), JSON.stringify(report, null, 2).replace(/\n/g, '\r\n'));
   console.log(JSON.stringify(report));
   await send('Browser.close');
