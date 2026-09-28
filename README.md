@@ -6,7 +6,9 @@ BesMapLab 是一个开源的世界地图探索项目。我们希望通过旋转�
 
 当前支持 Robinson（罗宾逊）、Equal Earth（等地球）与 Mercator（墨卡托）三种投影，将同一份真实经纬度轮廓动态绘制为 SVG，可完全离线运行。
 
-![BesMapLab Robinson 投影原型](docs/preview.png)
+![BesMapLab 当前界面：Robinson 投影、经纬度刻度、语言选择与图层控制](docs/preview.png)
+
+当前默认界面，包含投影切换、语言选择、图层开关和经纬度标记。
 
 ## 立即体验
 
