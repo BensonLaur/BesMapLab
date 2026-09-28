@@ -19,23 +19,30 @@ function build() {
     vm.runInContext(read(`vendor/${name}.min.js`), context, { filename: name });
   }
   const { d3, topojson } = context;
-  const labels = JSON.parse(read('data/label-positions.zh-CN.json'));
-  const overrides = JSON.parse(read('data/display-overrides.zh-CN.json'));
+  const labels = JSON.parse(read('data/region-labels.json'));
+  const styles = JSON.parse(read('data/region-styles.json'));
+  const locales = JSON.parse(read('locales/manifest.json'));
+  const messages = Object.fromEntries(locales.map(locale => [locale.id, JSON.parse(read(`locales/${locale.id}.json`))]));
+  const regions = {};
+  const oceans = JSON.parse(read('data/ocean-names.json'));
+  const overrides = JSON.parse(read('data/name-overrides.json'));
   const countries = JSON.parse(read('data/ne_50m_admin_0_countries.geojson'));
   const colors = new Map(countries.features.map(feature => [feature.properties.ADM0_A3, feature.properties.MAPCOLOR7]));
   const lakes = JSON.parse(read('data/ne_50m_lakes.geojson'));
   const maritimeIndicators = JSON.parse(read('data/ne_50m_admin_0_boundary_lines_maritime_indicator.geojson'));
   const maritimeChina = JSON.parse(read('data/ne_50m_admin_0_boundary_lines_maritime_indicator_chn.geojson'));
-  countries.features.forEach((feature, index) => {
+  countries.features.forEach(feature => {
     const properties = feature.properties;
-    const display = overrides[properties.ADM0_A3] || {};
-    const name = display.name || properties.NAME_ZH || properties.NAME;
-    feature.id = `${properties.ADM0_A3}-${index}`;
+    const code = properties.ADM0_A3;
+    const display = overrides[code] || {};
+    regions[code] = Object.fromEntries(locales.map(locale => [locale.id,
+      display[locale.id] || properties[locale.field] || display.en || properties.NAME_EN || properties.NAME]));
+    feature.id = code;
     feature.properties = {
-      name, code: properties.ADM0_A3,
-      point: labels[name] || [properties.LABEL_X, properties.LABEL_Y],
-      label: Object.hasOwn(labels, name), labelRank: properties.LABELRANK,
-      color: colors.get(display.colorFrom) ?? properties.MAPCOLOR7,
+      code,
+      point: labels[code]?.point || [properties.LABEL_X, properties.LABEL_Y],
+      label: labels[code]?.label || false, labelRank: properties.LABELRANK,
+      color: colors.get(styles[code]?.colorFrom) ?? properties.MAPCOLOR7,
       antarctica: properties.CONTINENT === 'Antarctica'
     };
   });
@@ -64,9 +71,10 @@ function build() {
   const notices = [read('LICENSE'), read('THIRD_PARTY_NOTICES.md'),
     ...manifest.vendor.map(item => `${item.package} ${item.version}\n${read(item.licensePath)}`)].join('\n\n');
   const replacements = {
-    __STYLES__: read('src/styles.css'), __APP__: read('src/projections.js') + '\n' + read('src/map.js'),
+    __STYLES__: read('src/styles.css'), __APP__: read('src/i18n.js') + '\n' + read('src/projections.js') + '\n' + read('src/map.js'),
     __D3__: read('vendor/d3.min.js'), __PROJECTIONS__: read('vendor/d3-geo-projection.min.js'),
     __TOPOJSON__: read('vendor/topojson-client.min.js'),
+    __I18N__: JSON.stringify({ locales, messages, regions, oceans }),
     __DETAIL__: JSON.stringify(detail), __MOTION__: JSON.stringify(motion),
     __LICENSE_NOTICES__: notices.replace(/--/g, '—')
   };

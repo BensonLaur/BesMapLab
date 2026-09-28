@@ -1,0 +1,62 @@
+{
+  "CHN": {
+    "zh-Hans": "中国",
+    "zh-Hant": "中國",
+    "en": "China",
+    "es": "China",
+    "fr": "Chine",
+    "pt": "China",
+    "ar": "الصين",
+    "ru": "Китай",
+    "de": "China",
+    "it": "Cina",
+    "tr": "Çin",
+    "ja": "中国",
+    "ko": "중국",
+    "hi": "चीन",
+    "bn": "চীন",
+    "ur": "چین",
+    "id": "Tiongkok",
+    "vi": "Trung Quốc"
+  },
+  "RUS": {
+    "zh-Hans": "俄罗斯",
+    "zh-Hant": "俄羅斯",
+    "en": "Russia"
+  },
+  "COD": {
+    "zh-Hans": "刚果（金）",
+    "zh-Hant": "剛果（金）",
+    "en": "DR Congo"
+  },
+  "KOR": {
+    "zh-Hans": "韩国",
+    "zh-Hant": "韓國",
+    "en": "South Korea"
+  },
+  "USA": {
+    "zh-Hans": "美国",
+    "zh-Hant": "美國",
+    "en": "United States"
+  },
+  "TWN": {
+    "zh-Hans": "台湾",
+    "zh-Hant": "台灣",
+    "en": "Taiwan",
+    "es": "Taiwán",
+    "fr": "Taïwan",
+    "pt": "Taiwan",
+    "ar": "تايوان",
+    "ru": "Тайвань",
+    "de": "Taiwan",
+    "it": "Taiwan",
+    "tr": "Tayvan",
+    "ja": "台湾",
+    "ko": "대만",
+    "hi": "ताइवान",
+    "bn": "তাইওয়ান",
+    "ur": "تائیوان",
+    "id": "Taiwan",
+    "vi": "Đài Loan"
+  }
+}

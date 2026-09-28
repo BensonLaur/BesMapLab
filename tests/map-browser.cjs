@@ -102,7 +102,7 @@ async function launchBrowser() {
   await send('Network.enable');
   await send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
   await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 900, deviceScaleFactor: 1, mobile: false });
-  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'index.html')).href });
+  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'index.html')).href + '?lang=zh-Hans' });
   await delay(1200);
   const snapshotExpression = `(() => {
     const label = document.querySelector('.country-label[data-code="CHN"]');
@@ -511,6 +511,8 @@ async function launchBrowser() {
   await evaluate(`localStorage.setItem('besmaplab.projection.v1', 'unknown-projection')`);
   await send('Page.reload'); await delay(500);
   assert.equal(await evaluate('document.getElementById("map").dataset.projection'), 'robinson');
+  await require('./i18n-browser.cjs')({ send, evaluate, click, screenshot, delay, report,
+    fileURL: pathToFileURL(path.join(root, 'index.html')).href });
   fs.writeFileSync(path.join(output, 'map-validation.json'), JSON.stringify(report, null, 2).replace(/\n/g, '\r\n'));
   console.log(JSON.stringify(report));
   await send('Browser.close');

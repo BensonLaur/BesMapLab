@@ -3,13 +3,13 @@
 ## 项目范围
 
 - 定位：通过交互了解世界地图的开源项目。
-- 当前支持 Robinson、Equal Earth、Mercator 三种投影和中文标注；计划功能必须明确标记为未实现。
+- 当前支持 Robinson、Equal Earth、Mercator 三种投影和 18 个语言选项；计划功能必须明确标记为未实现。
 - 本地优先，默认不添加联网请求、遥测、账户或后端依赖。
 - 国界、国家/地区名称和面积数据的修改应说明来源；投影规则与地理数据分开维护。
 
 ## 源码与构建
 
-- 修改 `src/`、`data/`、`scripts/` 后运行 `npm run build`，将更新后的 `index.html` 一起提交。
+- 修改 `src/`、`locales/`、`data/`、`scripts/` 后运行 `npm run build`，将更新后的 `index.html` 一起提交。
 - 不直接手工修改生成的 `index.html`。
 - 保留第三方文件的来源、版本、许可和 SHA-256；更新第三方库时同步 `data/sources.json`。
 - 文本采用 UTF-8、纯 CRLF，遵循 `.gitattributes` 和 `.editorconfig`；不修改无关文件的换行。

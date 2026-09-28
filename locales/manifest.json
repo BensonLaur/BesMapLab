@@ -1,0 +1,110 @@
+[
+  {
+    "id": "zh-Hans",
+    "name": "简体中文",
+    "field": "NAME_ZH",
+    "dir": "ltr"
+  },
+  {
+    "id": "zh-Hant",
+    "name": "繁體中文",
+    "field": "NAME_ZHT",
+    "dir": "ltr"
+  },
+  {
+    "id": "en",
+    "name": "English",
+    "field": "NAME_EN",
+    "dir": "ltr"
+  },
+  {
+    "id": "es",
+    "name": "Español",
+    "field": "NAME_ES",
+    "dir": "ltr"
+  },
+  {
+    "id": "fr",
+    "name": "Français",
+    "field": "NAME_FR",
+    "dir": "ltr"
+  },
+  {
+    "id": "pt",
+    "name": "Português",
+    "field": "NAME_PT",
+    "dir": "ltr"
+  },
+  {
+    "id": "ar",
+    "name": "العربية",
+    "field": "NAME_AR",
+    "dir": "rtl"
+  },
+  {
+    "id": "ru",
+    "name": "Русский",
+    "field": "NAME_RU",
+    "dir": "ltr"
+  },
+  {
+    "id": "de",
+    "name": "Deutsch",
+    "field": "NAME_DE",
+    "dir": "ltr"
+  },
+  {
+    "id": "it",
+    "name": "Italiano",
+    "field": "NAME_IT",
+    "dir": "ltr"
+  },
+  {
+    "id": "tr",
+    "name": "Türkçe",
+    "field": "NAME_TR",
+    "dir": "ltr"
+  },
+  {
+    "id": "ja",
+    "name": "日本語",
+    "field": "NAME_JA",
+    "dir": "ltr"
+  },
+  {
+    "id": "ko",
+    "name": "한국어",
+    "field": "NAME_KO",
+    "dir": "ltr"
+  },
+  {
+    "id": "hi",
+    "name": "हिन्दी",
+    "field": "NAME_HI",
+    "dir": "ltr"
+  },
+  {
+    "id": "bn",
+    "name": "বাংলা",
+    "field": "NAME_BN",
+    "dir": "ltr"
+  },
+  {
+    "id": "ur",
+    "name": "اردو",
+    "field": "NAME_UR",
+    "dir": "rtl"
+  },
+  {
+    "id": "id",
+    "name": "Bahasa Indonesia",
+    "field": "NAME_ID",
+    "dir": "ltr"
+  },
+  {
+    "id": "vi",
+    "name": "Tiếng Việt",
+    "field": "NAME_VI",
+    "dir": "ltr"
+  }
+]

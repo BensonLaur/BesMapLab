@@ -1,0 +1,415 @@
+{
+  "VNM": {
+    "point": [
+      107,
+      18
+    ],
+    "label": true
+  },
+  "VEN": {
+    "point": [
+      -65,
+      8
+    ],
+    "label": true
+  },
+  "USA": {
+    "point": [
+      -101,
+      38
+    ],
+    "label": true
+  },
+  "GBR": {
+    "point": [
+      -3,
+      54
+    ],
+    "label": true
+  },
+  "UKR": {
+    "point": [
+      32,
+      49
+    ],
+    "label": true
+  },
+  "TUR": {
+    "point": [
+      35,
+      39
+    ],
+    "label": true
+  },
+  "THA": {
+    "point": [
+      101,
+      17
+    ],
+    "label": true
+  },
+  "TZA": {
+    "point": [
+      35,
+      -6
+    ],
+    "label": true
+  },
+  "SWE": {
+    "point": [
+      17,
+      62
+    ],
+    "label": true
+  },
+  "SDN": {
+    "point": [
+      30,
+      16
+    ],
+    "label": true
+  },
+  "ESP": {
+    "point": [
+      -4,
+      40
+    ],
+    "label": true
+  },
+  "KOR": {
+    "point": [
+      128,
+      36
+    ],
+    "label": true
+  },
+  "ZAF": {
+    "point": [
+      24,
+      -30
+    ],
+    "label": true
+  },
+  "SAU": {
+    "point": [
+      44,
+      23
+    ],
+    "label": true
+  },
+  "RUS": {
+    "point": [
+      95,
+      60
+    ],
+    "label": true
+  },
+  "POL": {
+    "point": [
+      20,
+      53
+    ],
+    "label": true
+  },
+  "PER": {
+    "point": [
+      -75,
+      -10
+    ],
+    "label": true
+  },
+  "PAK": {
+    "point": [
+      68,
+      29
+    ],
+    "label": true
+  },
+  "NOR": {
+    "point": [
+      10,
+      63
+    ],
+    "label": true
+  },
+  "NGA": {
+    "point": [
+      8,
+      9
+    ],
+    "label": true
+  },
+  "NER": {
+    "point": [
+      9,
+      18
+    ],
+    "label": true
+  },
+  "NZL": {
+    "point": [
+      172,
+      -42
+    ],
+    "label": true
+  },
+  "NAM": {
+    "point": [
+      17,
+      -23
+    ],
+    "label": true
+  },
+  "MAR": {
+    "point": [
+      -7,
+      32
+    ],
+    "label": true
+  },
+  "MEX": {
+    "point": [
+      -103,
+      24
+    ],
+    "label": true
+  },
+  "MLI": {
+    "point": [
+      -5,
+      17
+    ],
+    "label": true
+  },
+  "MDG": {
+    "point": [
+      46,
+      -20
+    ],
+    "label": true
+  },
+  "LBY": {
+    "point": [
+      18,
+      27
+    ],
+    "label": true
+  },
+  "KEN": {
+    "point": [
+      38,
+      0
+    ],
+    "label": true
+  },
+  "KAZ": {
+    "point": [
+      68,
+      48
+    ],
+    "label": true
+  },
+  "JPN": {
+    "point": [
+      139,
+      39
+    ],
+    "label": true
+  },
+  "ITA": {
+    "point": [
+      12,
+      42
+    ],
+    "label": true
+  },
+  "IRN": {
+    "point": [
+      54,
+      32
+    ],
+    "label": true
+  },
+  "IDN": {
+    "point": [
+      118,
+      -3
+    ],
+    "label": true
+  },
+  "IND": {
+    "point": [
+      79,
+      22
+    ],
+    "label": true
+  },
+  "ISL": {
+    "point": [
+      -19,
+      65
+    ],
+    "label": true
+  },
+  "GRC": {
+    "point": [
+      23,
+      39
+    ],
+    "label": true
+  },
+  "DEU": {
+    "point": [
+      10,
+      51
+    ],
+    "label": true
+  },
+  "FRA": {
+    "point": [
+      2,
+      46
+    ],
+    "label": true
+  },
+  "FIN": {
+    "point": [
+      26,
+      65
+    ],
+    "label": true
+  },
+  "ETH": {
+    "point": [
+      39,
+      9
+    ],
+    "label": true
+  },
+  "EGY": {
+    "point": [
+      30,
+      27
+    ],
+    "label": true
+  },
+  "CUB": {
+    "point": [
+      -79,
+      22
+    ],
+    "label": true
+  },
+  "COD": {
+    "point": [
+      23,
+      -4
+    ],
+    "label": true
+  },
+  "COL": {
+    "point": [
+      -73,
+      4
+    ],
+    "label": true
+  },
+  "CHN": {
+    "point": [
+      104,
+      35
+    ],
+    "label": true
+  },
+  "CHL": {
+    "point": [
+      -70,
+      -34
+    ],
+    "label": true
+  },
+  "TCD": {
+    "point": [
+      18,
+      15
+    ],
+    "label": true
+  },
+  "CAN": {
+    "point": [
+      -108,
+      57
+    ],
+    "label": true
+  },
+  "CMR": {
+    "point": [
+      12,
+      5
+    ],
+    "label": true
+  },
+  "MMR": {
+    "point": [
+      96,
+      21
+    ],
+    "label": true
+  },
+  "BRA": {
+    "point": [
+      -51,
+      -10
+    ],
+    "label": true
+  },
+  "BOL": {
+    "point": [
+      -64,
+      -18
+    ],
+    "label": true
+  },
+  "AUS": {
+    "point": [
+      134,
+      -25
+    ],
+    "label": true
+  },
+  "ARG": {
+    "point": [
+      -63,
+      -37
+    ],
+    "label": true
+  },
+  "AGO": {
+    "point": [
+      18,
+      -12
+    ],
+    "label": true
+  },
+  "DZA": {
+    "point": [
+      3,
+      28
+    ],
+    "label": true
+  },
+  "ATA": {
+    "point": [
+      0,
+      -78
+    ],
+    "label": true
+  },
+  "MNG": {
+    "point": [
+      103,
+      46
+    ],
+    "label": true
+  }
+}

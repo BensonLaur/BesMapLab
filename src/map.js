@@ -1,5 +1,8 @@
 (() => {
   'use strict';
+  const i18n = BesMapI18n;
+  const t = i18n.text;
+  const nameOf = feature => i18n.regionName(feature.properties.code);
   const svg = document.getElementById('map');
   const viewport = document.getElementById('viewport');
   const meter = document.getElementById('zoom');
@@ -10,8 +13,8 @@
   const state = { central: 0, selected: null, projection: 'robinson' };
   const projectionStorageKey = 'besmaplab.projection.v1';
   const projectionSelect = document.getElementById('projection-select');
-  for (const [id, definition] of Object.entries(BesMapProjections.definitions)) {
-    projectionSelect.add(new Option(definition.label, id));
+  for (const id of Object.keys(BesMapProjections.definitions)) {
+    projectionSelect.add(new Option(t(`projection.${id}.name`), id));
   }
   const layerDefaults = { countryLabels: true, oceanLabels: true, grid: true, coordinates: true, maritime: true, maritimeChina: true };
   const layerStorageKey = 'besmaplab.layers.v1';
@@ -50,28 +53,100 @@
     for (const id of ['ocean', 'outline', 'clip-outline']) document.getElementById(id).setAttribute('d', outlinePath);
     worldBounds = path.bounds({ type: 'Sphere' });
     projectionSelect.value = state.projection;
-    document.getElementById('projection-note').textContent = projectionDefinition().description;
-    document.getElementById('projection-source').textContent = projectionDefinition().name;
+    document.getElementById('projection-note').textContent = t(`projection.${state.projection}.description`);
+    document.getElementById('projection-source').textContent = t(`projection.${state.projection}.name`);
     svg.dataset.projection = state.projection;
   }
   configureProjection();
   const countries = d3.select('#countries').selectAll('path').data(detail.countries).join('path')
     .attr('class', 'country').attr('data-code', f => f.properties.code)
-    .attr('data-id', f => f.id).attr('data-name', f => f.properties.name)
+    .attr('data-id', f => f.id).attr('data-name', nameOf)
     .attr('fill', f => f.properties.antarctica ? '#e3e9e9' : palette[f.properties.color] || palette[0]);
-  countries.append('title').text(f => f.properties.name);
+  countries.append('title').text(nameOf);
   const maritimeIndicators = d3.select('#maritime-indicators').selectAll('path').data(detail.maritimeIndicators).join('path')
     .attr('class', 'maritime-line');
   const maritimeChina = d3.select('#maritime-china').selectAll('path').data(detail.maritimeChina).join('path')
     .attr('class', 'maritime-line maritime-china-line');
   const labels = d3.select('#country-labels').selectAll('text').data(detail.countries).join('text')
     .attr('class', 'country-label').attr('data-code', f => f.properties.code).attr('data-id', f => f.id)
-    .text(f => f.properties.name);
+    .text(nameOf);
   const oceans = d3.select('#ocean-labels').selectAll('text').data([
-    { name: '太平洋', point: [-150, 0] }, { name: '大西洋', point: [-33, 1] },
-    { name: '印度洋', point: [76, -29] }, { name: '北冰洋', point: [0, 78] },
-    { name: '南大洋', point: [0, -63] }
-  ]).join('text').attr('class', 'ocean-label').text(d => d.name);
+    { code: 'pacific', point: [-150, 0] }, { code: 'atlantic', point: [-33, 1] },
+    { code: 'indian', point: [76, -29] }, { code: 'arctic', point: [0, 78] },
+    { code: 'southern', point: [0, -63] }
+  ]).join('text').attr('class', 'ocean-label').text(d => i18n.oceanName(d.code));
+
+  const measurementCache = new Map();
+  const measureSvg = d3.select(document.body).append('svg').attr('aria-hidden', 'true')
+    .attr('width', 1).attr('height', 1).style('position', 'fixed').style('visibility', 'hidden').style('pointer-events', 'none');
+  const measureText = measureSvg.append('text').attr('text-anchor', 'middle');
+  let mapFont;
+  function measureLabel(text, ocean, selected) {
+    const key = `${i18n.mapLanguage}|${ocean}|${selected}|${text}`;
+    if (!measurementCache.has(key)) {
+      // Measure shaped glyphs at screen size, outside the map's zoom transform.
+      // Character counts do not predict Arabic joining, CJK widths or fallback fonts.
+      measureText.style('font-family', mapFont).style('font-size', ocean ? '18px' : '10.5px')
+        .style('font-weight', selected ? '600' : '400').attr('dominant-baseline', ocean ? 'auto' : 'middle')
+        .attr('lang', i18n.mapLanguage).attr('direction', i18n.metadata(i18n.mapLanguage).dir).text(text);
+      const { x, y, width, height } = measureText.node().getBBox();
+      measurementCache.set(key, { x, y, width, height });
+    }
+    return measurementCache.get(key);
+  }
+  const languagePanel = document.getElementById('language-panel');
+  const languageToggle = document.getElementById('language-toggle');
+  const interfaceLanguage = document.getElementById('interface-language');
+  const mapLanguage = document.getElementById('map-language');
+  mapLanguage.add(new Option(t('language.follow'), 'follow'));
+  for (const locale of i18n.locales) {
+    for (const select of [interfaceLanguage, mapLanguage]) {
+      const option = new Option(locale.name, locale.id);
+      option.lang = locale.id; option.dir = locale.dir; select.add(option);
+    }
+  }
+  function updateLongitude() {
+    const central = wrap(state.central);
+    // Isolate coordinates so RTL sentences cannot reverse the E/W numeric run.
+    longitude.textContent = t('longitude', { value: `\u2066${Math.abs(central).toFixed(1)}°${central > .05 ? 'E' : central < -.05 ? 'W' : ''}\u2069` });
+  }
+  function applyLanguage() {
+    interfaceLanguage.value = i18n.ui; mapLanguage.value = i18n.map;
+    mapLanguage.options[0].textContent = t('language.follow');
+    const current = document.getElementById('language-current');
+    current.textContent = i18n.metadata(i18n.ui).name; current.dir = i18n.metadata(i18n.ui).dir;
+    languageToggle.title = `${t('language.button')}: ${current.textContent}`;
+    for (const option of projectionSelect.options) option.textContent = t(`projection.${option.value}.name`);
+    document.getElementById('projection-note').textContent = t(`projection.${state.projection}.description`);
+    document.getElementById('projection-source').textContent = t(`projection.${state.projection}.name`);
+    countries.attr('data-name', nameOf).select('title').text(nameOf);
+    labels.text(nameOf); oceans.text(d => i18n.oceanName(d.code));
+    for (const group of ['country-labels', 'ocean-labels']) {
+      const element = document.getElementById(group);
+      element.setAttribute('lang', i18n.mapLanguage); element.setAttribute('direction', i18n.metadata(i18n.mapLanguage).dir);
+    }
+    status.lang = i18n.mapLanguage; status.dir = i18n.metadata(i18n.mapLanguage).dir;
+    const selected = detail.countries.find(feature => feature.id === state.selected);
+    if (selected) status.textContent = nameOf(selected);
+    mapFont = getComputedStyle(labels.node()).fontFamily;
+    measurementCache.clear(); updateLongitude();
+    document.getElementById('preference-status').textContent = t(preferencesSaved ? 'preferences.saved' : 'preferences.temporary');
+    document.getElementById('language-status').textContent = t(i18n.persistent ? 'preferences.saved' : 'preferences.temporary');
+  }
+  i18n.subscribe(() => { applyLanguage(); drawGraticule(); layoutLabels(); updateCoordinates(); });
+  interfaceLanguage.addEventListener('change', () => i18n.change({ ui: interfaceLanguage.value }));
+  mapLanguage.addEventListener('change', () => i18n.change({ map: mapLanguage.value }));
+  function setLanguagePanel(open, restoreFocus = false) {
+    if (open) setPanel(false);
+    languagePanel.hidden = !open; languageToggle.setAttribute('aria-expanded', open);
+    if (restoreFocus) languageToggle.focus();
+    drawGraticule(); layoutLabels();
+  }
+  languageToggle.addEventListener('click', () => setLanguagePanel(languagePanel.hidden));
+  document.getElementById('language-close').addEventListener('click', () => setLanguagePanel(false, true));
+  document.addEventListener('pointerdown', event => {
+    if (!languagePanel.hidden && !languagePanel.contains(event.target) && !languageToggle.contains(event.target)) setLanguagePanel(false);
+  });
 
   const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
   const wrap = value => ((value + 180) % 360 + 360) % 360 - 180;
@@ -104,7 +179,7 @@
     renderView();
   }
   function overlayBoxes() {
-    return [...document.querySelectorAll('.heading, .longitude, .selection, .controls, .layers-toggle, .layers-panel, .hint, .source')]
+    return [...document.querySelectorAll('.heading, .longitude, .selection, .controls, .map-toolbar, .layers-panel, .language-panel, .hint, .source')]
       .map(element => element.getBoundingClientRect()).filter(box => box.width && box.height)
       .map(box => ({ left: box.left - 5, right: box.right + 5, top: box.top - 5, bottom: box.bottom + 5 }));
   }
@@ -204,10 +279,11 @@
       if (document.getElementById('ocean').isPointInFill(point)) location = projection.invert([point.x, point.y]);
     }
     if (!location || !location.every(Number.isFinite)) {
-      readout.textContent = '指向或轻触地图查看经纬度';
+      readout.textContent = t('coordinates.idle'); readout.dir = i18n.metadata(i18n.ui).dir;
       delete readout.dataset.longitude; delete readout.dataset.latitude;
     } else {
       const lon = wrap(location[0]), lat = location[1];
+      readout.dir = 'ltr';
       readout.textContent = `${formatDegrees(lon, 'longitude', 2)} · ${formatDegrees(lat, 'latitude', 2)}`;
       readout.dataset.longitude = lon; readout.dataset.latitude = lat;
     }
@@ -215,21 +291,21 @@
   function layoutLabels() {
     const scale = viewport.clientWidth / view.w;
     const candidates = [];
-    function place(element, point, width, top, bottom, priority) {
+    function place(element, point, metrics, priority) {
       if (Math.abs(point[1]) > projectionDefinition().latitudeLimit) { element.style.display = 'none'; return; }
       const [x, y] = projection(point);
       element.setAttribute('x', x); element.setAttribute('y', y);
       const screenX = (x - view.x) * scale, screenY = (y - view.y) * scale;
-      candidates.push({ element, priority, left: screenX - width / 2, right: screenX + width / 2,
-        top: screenY - top, bottom: screenY + bottom });
+      candidates.push({ element, priority, left: screenX + metrics.x - 3, right: screenX + metrics.x + metrics.width + 3,
+        top: screenY + metrics.y - 3, bottom: screenY + metrics.y + metrics.height + 3 });
     }
     labels.each(function(f) {
       const selected = state.selected === f.id;
       if (!layers.countryLabels || (!f.properties.label && !selected)) { this.style.display = 'none'; return; }
-      place(this, f.properties.point, [...f.properties.name].length * 10.5 + 5, 11, 11,
+      place(this, f.properties.point, measureLabel(this.textContent, false, selected),
         selected ? -1 : f.properties.labelRank || 6);
     });
-    if (layers.oceanLabels) oceans.each(function(d) { place(this, d.point, [...d.name].length * 18 + 4, 28, 8, 0); });
+    if (layers.oceanLabels) oceans.each(function(d) { place(this, d.point, measureLabel(this.textContent, true, false), 0); });
     // Fixed-size text needs screen-space spacing. Selection wins, then upstream label rank.
     const obstacles = [...coordinateBoxes, ...overlayBoxes()], occupied = [];
     for (const box of candidates.sort((a, b) => a.priority - b.priority)) {
@@ -253,7 +329,7 @@
     layoutLabels();
     updateCoordinates();
     const central = wrap(state.central);
-    longitude.textContent = `中央经线 ${Math.abs(central).toFixed(1)}°${central > .05 ? 'E' : central < -.05 ? 'W' : ''}`;
+    updateLongitude();
     svg.dataset.centralLongitude = central;
     svg.dataset.detail = full ? 'full' : 'motion';
   }
@@ -285,7 +361,7 @@
     view.x = point[0] - view.w / 2; view.y = point[1] - view.h / 2;
     try { localStorage.setItem(projectionStorageKey, id); preferencesSaved = true; }
     catch { preferencesSaved = false; }
-    document.getElementById('preference-status').textContent = preferencesSaved ? '偏好保存在此浏览器' : '设置仅在本次访问有效';
+    document.getElementById('preference-status').textContent = t(preferencesSaved ? 'preferences.saved' : 'preferences.temporary');
     renderView(); draw(true);
   }
   projectionSelect.addEventListener('change', event => changeProjection(event.target.value));
@@ -294,7 +370,7 @@
     state.selected = feature.id;
     countries.classed('selected', d => d.id === feature.id);
     labels.classed('selected', d => d.id === feature.id);
-    status.hidden = false; status.textContent = feature.properties.name;
+    status.hidden = false; status.textContent = nameOf(feature);
     const from = state.central;
     const delta = wrap(feature.properties.point[0] - from);
     const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900;
@@ -414,6 +490,7 @@
   const layerPanel = document.getElementById('layers-panel');
   const layerToggle = document.getElementById('layers-toggle');
   function setPanel(open, restoreFocus = false) {
+    if (open) setLanguagePanel(false);
     layerPanel.hidden = !open; layerToggle.setAttribute('aria-expanded', open);
     if (restoreFocus) layerToggle.focus();
     drawGraticule(); layoutLabels();
@@ -430,7 +507,7 @@
       try { localStorage.setItem(layerStorageKey, JSON.stringify(layers)); preferencesSaved = true; }
       catch { preferencesSaved = false; }
     }
-    document.getElementById('preference-status').textContent = preferencesSaved ? '偏好保存在此浏览器' : '设置仅在本次访问有效';
+    document.getElementById('preference-status').textContent = t(preferencesSaved ? 'preferences.saved' : 'preferences.temporary');
     drawGraticule(); layoutLabels(); updateCoordinates();
   }
   layerToggle.addEventListener('click', () => setPanel(layerPanel.hidden));
@@ -447,7 +524,8 @@
   });
   window.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !layerPanel.hidden) { setPanel(false, true); return; }
-    if (event.target.closest('#layers-panel, input, select, textarea, [contenteditable]')) return;
+    if (event.key === 'Escape' && !languagePanel.hidden) { setLanguagePanel(false, true); return; }
+    if (event.target.closest('#layers-panel, #language-panel, input, select, textarea, [contenteditable]')) return;
     if (event.key === '+' || event.key === '=') zoomCenter(1.6);
     else if (event.key === '-' || event.key === '_') zoomCenter(1 / 1.6);
     else if (event.key === '0') reset();
@@ -457,5 +535,8 @@
     fitSize = fitDimensions(); view.w = fitSize.w / zoom; view.h = fitSize.h / zoom;
     view.x = x - view.w / 2; view.y = y - view.h / 2; renderView();
   });
+  applyLanguage();
   fitView(); applyLayers(); draw(true);
+  document.fonts.ready.then(() => { measurementCache.clear(); layoutLabels(); });
+  document.fonts.addEventListener('loadingdone', () => { measurementCache.clear(); layoutLabels(); });
 })();
