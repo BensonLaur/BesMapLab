@@ -290,6 +290,7 @@
   }
   function layoutLabels() {
     const scale = viewport.clientWidth / view.w;
+    const overview = zoomLevel() < 1.5;
     const candidates = [];
     function place(element, point, metrics, priority) {
       if (Math.abs(point[1]) > projectionDefinition().latitudeLimit) { element.style.display = 'none'; return; }
@@ -301,7 +302,9 @@
     }
     labels.each(function(f) {
       const selected = state.selected === f.id;
-      if (!layers.countryLabels || (!f.properties.label && !selected)) { this.style.display = 'none'; return; }
+      // The curated subset is only for the overview. Zoomed regions must all enter
+      // collision layout; otherwise omitted names can never appear without a click.
+      if (!layers.countryLabels || (overview && !f.properties.label && !selected)) { this.style.display = 'none'; return; }
       place(this, f.properties.point, measureLabel(this.textContent, false, selected),
         selected ? -1 : f.properties.labelRank || 6);
     });
