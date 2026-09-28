@@ -30,7 +30,7 @@
   "controls.in": "Zoom avant",
   "controls.out": "Zoom arrière",
   "controls.reset": "Rétablir la vue mondiale",
-  "hint.rotate": "Sélectionner une région pour la centrer · Glisser horizontalement pour tourner",
+  "hint.rotate": "Sélectionner une région pour la centrer · Glisser : horizontalement pour tourner, verticalement pour déplacer",
   "hint.zoom": "Molette pour zoomer · Maj + glisser pour déplacer · 0 pour réinitialiser",
   "coordinates.idle": "Pointez ou touchez la carte pour voir les coordonnées",
   "source.layers": "Inclut les repères maritimes et les lignes complémentaires de la Chine",

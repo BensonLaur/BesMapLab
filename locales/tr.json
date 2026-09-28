@@ -30,7 +30,7 @@
   "controls.in": "Yakınlaştır",
   "controls.out": "Uzaklaştır",
   "controls.reset": "Dünya görünümünü sıfırla",
-  "hint.rotate": "Ortalamak için bölge seçin · Döndürmek için yatay sürükleyin",
+  "hint.rotate": "Ortalamak için bölge seçin · Yatay sürükleyerek döndürün, dikey sürükleyerek kaydırın",
   "hint.zoom": "Tekerlek: yakınlaştır · Shift + sürükle: kaydır · 0: sıfırla",
   "coordinates.idle": "Koordinatlar için haritayı işaret edin veya haritaya dokunun",
   "source.layers": "Deniz göstergeleri ve Çin ek çizgileri içerir",

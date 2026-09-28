@@ -30,7 +30,7 @@
   "controls.in": "Zoom in",
   "controls.out": "Zoom out",
   "controls.reset": "Reset world view",
-  "hint.rotate": "Select a region to center it · Drag horizontally to rotate",
+  "hint.rotate": "Select a region to center · Drag left/right to rotate, up/down to pan",
   "hint.zoom": "Scroll to zoom · Shift + drag to pan · 0 to reset",
   "coordinates.idle": "Point at or tap the map for coordinates",
   "source.layers": "Includes maritime indicators and China supplementary lines",

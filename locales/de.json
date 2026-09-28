@@ -30,7 +30,7 @@
   "controls.in": "Vergrößern",
   "controls.out": "Verkleinern",
   "controls.reset": "Weltansicht zurücksetzen",
-  "hint.rotate": "Region zum Zentrieren wählen · Horizontal ziehen zum Drehen",
+  "hint.rotate": "Region zum Zentrieren wählen · Links/rechts ziehen: drehen · Nach oben/unten ziehen: verschieben",
   "hint.zoom": "Scrollen: Zoom · Umschalt + Ziehen: Verschieben · 0: Zurücksetzen",
   "coordinates.idle": "Auf die Karte zeigen oder tippen, um Koordinaten zu sehen",
   "source.layers": "Mit maritimen Grenzhinweisen und ergänzenden Linien für China",

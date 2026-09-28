@@ -30,7 +30,7 @@
   "controls.in": "放大",
   "controls.out": "縮小",
   "controls.reset": "恢復世界全圖",
-  "hint.rotate": "點選地區：移至中央 · 左右拖曳：旋轉世界",
+  "hint.rotate": "點選地區：置中 · 左右拖曳：旋轉 · 上下拖曳：平移",
   "hint.zoom": "滾輪：縮放 · Shift + 拖曳：平移 · 0：重設",
   "coordinates.idle": "指向或輕觸地圖查看經緯度",
   "source.layers": "含海上界線指示與中國補充線",

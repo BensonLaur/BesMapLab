@@ -30,7 +30,7 @@
   "controls.in": "확대",
   "controls.out": "축소",
   "controls.reset": "세계 전체 보기로 복원",
-  "hint.rotate": "지역 선택: 중앙으로 이동 · 좌우 드래그: 회전",
+  "hint.rotate": "지역 선택: 중앙으로 · 좌우 드래그: 회전 · 상하 드래그: 이동",
   "hint.zoom": "휠: 확대·축소 · Shift + 드래그: 이동 · 0: 초기화",
   "coordinates.idle": "지도를 가리키거나 탭하여 경위도를 확인하세요",
   "source.layers": "해상 경계 표시선과 중국 보충선 포함",

@@ -30,7 +30,7 @@
   "controls.in": "Ampliar",
   "controls.out": "Reduzir",
   "controls.reset": "Restaurar a visão mundial",
-  "hint.rotate": "Selecione uma região para centralizar · Arraste na horizontal para girar",
+  "hint.rotate": "Selecione uma região para centralizar · Arraste: na horizontal para girar, na vertical para mover",
   "hint.zoom": "Role para ampliar · Shift + arrastar para mover · 0 para redefinir",
   "coordinates.idle": "Aponte ou toque no mapa para ver as coordenadas",
   "source.layers": "Inclui indicadores marítimos e linhas complementares da China",

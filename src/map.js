@@ -158,8 +158,11 @@
     return { w, h: w / ratio };
   }
   function zoomLevel() { return fitSize.w / view.w; }
-  function renderView() {
+  function syncViewBox() {
     svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
+  }
+  function renderView() {
+    syncViewBox();
     // Convert fixed screen-pixel text and halos to SVG units after zoom or resize.
     svg.style.setProperty('--label-scale', view.w / Math.max(1, viewport.clientWidth));
     // Use the actual screen scale so dense line fragments also recede on narrow screens.
@@ -320,6 +323,8 @@
     }
   }
   function draw(full = false) {
+    // Commit camera movement with rotation, including release before a queued frame runs.
+    syncViewBox();
     projection.rotate([-state.central, 0, 0]);
     const data = full ? detail : motion;
     const elements = countries.nodes();
@@ -461,6 +466,8 @@
     } else {
       const point = mapPoint(event.clientX, event.clientY);
       state.central = drag.central - (point.x - drag.mapX) / drag.perDegree;
+      // Vertical movement pans the whole projected map; geographic latitude is unchanged.
+      view.y = drag.viewY - dy * view.h / viewport.clientHeight;
       queueDraw();
     }
   });
@@ -478,7 +485,11 @@
   }
   viewport.addEventListener('pointerup', release);
   viewport.addEventListener('pointercancel', release);
-  viewport.addEventListener('lostpointercapture', release);
+  viewport.addEventListener('lostpointercapture', event => {
+    // Touch capture can transfer from a country path to the viewport. The child's
+    // bubbling loss event must not end the gesture that the viewport just acquired.
+    if (event.target === viewport) release(event);
+  });
   viewport.addEventListener('pointerleave', event => {
     if (event.pointerType === 'mouse' && !pointers.size) { cursor = null; updateCoordinates(); }
   });

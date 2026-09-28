@@ -30,7 +30,7 @@
   "controls.in": "Perbesar",
   "controls.out": "Perkecil",
   "controls.reset": "Pulihkan tampilan dunia",
-  "hint.rotate": "Pilih wilayah untuk memusatkan · Seret mendatar untuk memutar",
+  "hint.rotate": "Pilih wilayah untuk memusatkan · Seret kiri/kanan untuk memutar, atas/bawah untuk menggeser",
   "hint.zoom": "Gulir untuk zoom · Shift + seret untuk menggeser · 0 untuk mengatur ulang",
   "coordinates.idle": "Arahkan atau ketuk peta untuk melihat koordinat",
   "source.layers": "Termasuk penanda laut dan garis tambahan Tiongkok",

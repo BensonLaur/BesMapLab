@@ -104,9 +104,11 @@ async function launchBrowser() {
   await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 900, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: pathToFileURL(path.join(root, 'index.html')).href + '?lang=zh-Hans' });
   await delay(1200);
-  if (process.argv.includes('--labels-only')) {
+  const focusedSuite = process.argv.includes('--drag-only') ? './drag-browser.cjs'
+    : process.argv.includes('--labels-only') ? './zoom-labels-browser.cjs' : null;
+  if (focusedSuite) {
     const report = { errors };
-    await require('./zoom-labels-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
+    await require(focusedSuite)({ send, evaluate, click, screenshot, delay, report });
     console.log(JSON.stringify(report));
     assert.equal(errors.length, 0);
     await send('Browser.close'); socket.close(); return;
@@ -521,6 +523,7 @@ async function launchBrowser() {
   await require('./i18n-browser.cjs')({ send, evaluate, click, screenshot, delay, report,
     fileURL: pathToFileURL(path.join(root, 'index.html')).href });
   await require('./zoom-labels-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
+  await require('./drag-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
   fs.writeFileSync(path.join(output, 'map-validation.json'), JSON.stringify(report, null, 2).replace(/\n/g, '\r\n'));
   console.log(JSON.stringify(report));
   await send('Browser.close');

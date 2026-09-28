@@ -30,7 +30,7 @@
   "controls.in": "Ingrandisci",
   "controls.out": "Riduci",
   "controls.reset": "Ripristina la vista mondiale",
-  "hint.rotate": "Seleziona una regione per centrarla · Trascina in orizzontale per ruotare",
+  "hint.rotate": "Seleziona una regione per centrarla · Trascina in orizzontale per ruotare, in verticale per spostare",
   "hint.zoom": "Rotella per lo zoom · Shift + trascina per spostare · 0 per ripristinare",
   "coordinates.idle": "Punta o tocca la mappa per vedere le coordinate",
   "source.layers": "Include indicatori marittimi e linee supplementari della Cina",

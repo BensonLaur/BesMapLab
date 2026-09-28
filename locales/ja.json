@@ -30,7 +30,7 @@
   "controls.in": "拡大",
   "controls.out": "縮小",
   "controls.reset": "世界全体の表示に戻す",
-  "hint.rotate": "地域を選択して中央へ · 左右にドラッグして回転",
+  "hint.rotate": "地域を選択して中央へ · 左右ドラッグで回転 · 上下ドラッグで移動",
   "hint.zoom": "ホイールで拡大縮小 · Shift + ドラッグで移動 · 0でリセット",
   "coordinates.idle": "地図を指すかタップして経緯度を表示",
   "source.layers": "海上境界の表示線と中国の補足線を含む",

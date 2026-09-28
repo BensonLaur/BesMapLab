@@ -30,7 +30,7 @@
   "controls.in": "Phóng to",
   "controls.out": "Thu nhỏ",
   "controls.reset": "Khôi phục toàn cảnh thế giới",
-  "hint.rotate": "Chọn khu vực để đưa vào giữa · Kéo ngang để xoay",
+  "hint.rotate": "Chọn khu vực để đưa vào giữa · Kéo trái/phải để xoay, lên/xuống để di chuyển",
   "hint.zoom": "Cuộn để thu phóng · Shift + kéo để di chuyển · 0 để đặt lại",
   "coordinates.idle": "Trỏ hoặc chạm vào bản đồ để xem tọa độ",
   "source.layers": "Gồm chỉ dấu trên biển và đường bổ sung của Trung Quốc",
