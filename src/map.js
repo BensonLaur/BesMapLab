@@ -381,11 +381,17 @@
     status.hidden = false; status.textContent = nameOf(feature);
     const from = state.central;
     const delta = wrap(feature.properties.point[0] - from);
+    const fromCenterX = view.x + view.w / 2;
+    const toCenterX = projection.translate()[0];
     const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900;
     const started = performance.now();
     function frame(now) {
       const t = duration ? clamp((now - started) / duration, 0, 1) : 1;
-      state.central = from + delta * (t * t * (3 - 2 * t));
+      const eased = t * t * (3 - 2 * t);
+      state.central = from + delta * eased;
+      // Cursor-anchored zoom can leave the central meridian off-screen. Pan it back
+      // with the same easing, preserving zoom and vertical pan even after a resize.
+      view.x = fromCenterX + (toCenterX - fromCenterX) * eased - view.w / 2;
       draw(t === 1);
       animation = t < 1 ? requestAnimationFrame(frame) : 0;
     }
@@ -401,6 +407,8 @@
     return new DOMPoint(clientX, clientY).matrixTransform(svg.getScreenCTM().inverse());
   }
   function zoomAt(clientX, clientY, factor) {
+    // A new zoom gesture takes control of the camera from click-to-center motion.
+    if (animation) { stopMotion(); draw(true); }
     const rect = svg.getBoundingClientRect();
     const fx = clamp((clientX - rect.left) / rect.width, 0, 1);
     const fy = clamp((clientY - rect.top) / rect.height, 0, 1);
