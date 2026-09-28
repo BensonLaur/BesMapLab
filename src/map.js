@@ -182,9 +182,11 @@
     renderView();
   }
   function overlayBoxes() {
+    const viewportBox = viewport.getBoundingClientRect();
     return [...document.querySelectorAll('.heading, .longitude, .selection, .controls, .map-toolbar, .layers-panel, .language-panel, .hint, .source')]
       .map(element => element.getBoundingClientRect()).filter(box => box.width && box.height)
-      .map(box => ({ left: box.left - 5, right: box.right + 5, top: box.top - 5, bottom: box.bottom + 5 }));
+      .map(box => ({ left: box.left - viewportBox.left - 5, right: box.right - viewportBox.left + 5,
+        top: box.top - viewportBox.top - 5, bottom: box.bottom - viewportBox.top + 5 }));
   }
   function overlaps(a, b) { return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top; }
   function formatDegrees(value, axis, decimals = 0) {
@@ -362,6 +364,7 @@
     const zoom = zoomLevel();
     state.projection = id;
     projection = BesMapProjections.create(id); configureProjection();
+    BesMapProjectionInfo.update(id);
     fitSize = fitDimensions(); view.w = fitSize.w / zoom; view.h = fitSize.h / zoom;
     // Preserve geographic focus, not old projected x/y. Mercator cannot include the poles.
     const latitudeLimit = projectionDefinition().latitudeLimit - 1e-6;
@@ -418,7 +421,10 @@
     view.x = x - fx * view.w; view.y = y - fy * view.h;
     renderView();
   }
-  function zoomCenter(factor) { zoomAt(viewport.clientWidth / 2, viewport.clientHeight / 2, factor); }
+  function zoomCenter(factor) {
+    const rect = viewport.getBoundingClientRect();
+    zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
+  }
   viewport.addEventListener('wheel', event => {
     event.preventDefault();
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientHeight : 1;
@@ -524,6 +530,7 @@
       document.getElementById(id).style.display = layers[key] ? '' : 'none';
       layerPanel.querySelector(`[data-layer="${key}"]`).checked = layers[key];
     }
+    BesMapProjectionInfo.setGrid(layers.grid);
     document.getElementById('coordinate-readout').hidden = !layers.coordinates;
     if (save) {
       try { localStorage.setItem(layerStorageKey, JSON.stringify(layers)); preferencesSaved = true; }
@@ -547,16 +554,22 @@
   window.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !layerPanel.hidden) { setPanel(false, true); return; }
     if (event.key === 'Escape' && !languagePanel.hidden) { setLanguagePanel(false, true); return; }
-    if (event.target.closest('#layers-panel, #language-panel, input, select, textarea, [contenteditable]')) return;
+    if (event.key === 'Escape' && BesMapProjectionInfo.open) { BesMapProjectionInfo.setOpen(false, true); return; }
+    if (event.target.closest('#projection-info, #layers-panel, #language-panel, input, select, textarea, [contenteditable]')) return;
     if (event.key === '+' || event.key === '=') zoomCenter(1.6);
     else if (event.key === '-' || event.key === '_') zoomCenter(1 / 1.6);
     else if (event.key === '0') reset();
   });
-  window.addEventListener('resize', () => {
+  function resizeView() {
     const zoom = zoomLevel(), x = view.x + view.w / 2, y = view.y + view.h / 2;
     fitSize = fitDimensions(); view.w = fitSize.w / zoom; view.h = fitSize.h / zoom;
     view.x = x - view.w / 2; view.y = y - view.h / 2; renderView();
-  });
+  }
+  // The reader changes the available map area. Keep the same projected center and zoom,
+  // using the existing window-resize policy; never refit or rotate the active map.
+  BesMapProjectionInfo.init({ projection: state.projection, onResize: resizeView,
+    onGridChange: checked => { layers.grid = checked; applyLayers(true); } });
+  new ResizeObserver(resizeView).observe(viewport);
   applyLanguage();
   fitView(); applyLayers(); draw(true);
   document.fonts.ready.then(() => { measurementCache.clear(); layoutLabels(); });

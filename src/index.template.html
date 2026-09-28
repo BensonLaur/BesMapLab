@@ -12,6 +12,14 @@ __STYLES__
 </head>
 <body>
   <noscript>BesMapLab 需要启用 JavaScript 才能绘制和操作地图。</noscript>
+  <div class="heading">
+    <h1>BesMapLab</h1>
+    <label class="sr-only" for="projection-select" data-i18n="projection.label">地图投影</label>
+    <select id="projection-select" aria-describedby="projection-note"></select>
+    <p id="projection-note" class="projection-note"></p>
+    <button id="projection-info-toggle" class="intro-toggle" type="button" aria-expanded="false" aria-controls="projection-info" data-i18n="intro.open"></button>
+  </div>
+  <div id="map-shell">
   <main id="viewport">
     <svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="可旋转和缩放的矢量世界地图，点击国家转到中央" data-i18n-aria-label="map.aria" viewBox="0 0 1728 972">
       <defs><clipPath id="world-clip"><path id="clip-outline" /></clipPath></defs>
@@ -29,12 +37,6 @@ __STYLES__
       <g id="coordinate-labels" aria-label="经纬度刻度" data-i18n-aria-label="layers.coordinates" pointer-events="none"></g>
     </svg>
   </main>
-  <div class="heading">
-    <h1>BesMapLab</h1>
-    <label class="sr-only" for="projection-select" data-i18n="projection.label">地图投影</label>
-    <select id="projection-select" aria-describedby="projection-note"></select>
-    <p id="projection-note" class="projection-note"></p>
-  </div>
   <div id="longitude" class="longitude">中央经线 0°</div>
   <div id="selection" class="selection" hidden aria-live="polite"></div>
   <div class="map-toolbar">
@@ -79,6 +81,34 @@ __STYLES__
     <div class="hint"><span data-i18n="hint.rotate"></span><br><span data-i18n="hint.zoom"></span><output id="coordinate-readout">指向或轻触地图查看经纬度</output></div>
     <div class="source"><span id="projection-source">罗宾逊投影</span> · <span data-i18n="source.layers"></span><br><a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth 1:50m</a> · <a href="https://d3js.org/d3-geo/projection" target="_blank" rel="noopener">D3</a></div>
   </div>
+  </div>
+  <aside id="projection-info" class="projection-info" aria-labelledby="projection-info-title" hidden>
+    <div class="intro-header">
+      <h2 id="projection-info-title"></h2>
+      <button id="projection-info-close" type="button" data-i18n-aria-label="intro.close">×</button>
+    </div>
+    <div id="projection-info-body" class="intro-body" tabindex="0" role="region" aria-labelledby="projection-info-title">
+      <p class="intro-context" data-i18n="intro.context"></p>
+      <p id="projection-info-lead" class="intro-lead"></p>
+      <figure class="intro-figure">
+        <svg id="intro-diagram" viewBox="0 0 300 166" role="img" aria-labelledby="intro-diagram-caption">
+          <path id="intro-outline"/><path id="intro-grid"/><path id="intro-equator"/>
+        </svg>
+        <figcaption id="intro-diagram-caption" data-i18n="intro.diagram"></figcaption>
+      </figure>
+      <section><h3 data-i18n="intro.geometry"></h3><p id="projection-info-geometry"></p></section>
+      <section><h3 data-i18n="intro.tradeoff"></h3><p id="projection-info-tradeoff"></p></section>
+      <section><h3 data-i18n="intro.use"></h3><p id="projection-info-use"></p></section>
+      <section class="intro-observe"><h3 data-i18n="intro.observe"></h3><p id="projection-info-observe"></p>
+        <label class="layer-option"><span data-i18n="layers.grid"></span><input id="projection-info-grid" type="checkbox" role="switch"></label>
+      </section>
+      <details class="intro-sources"><summary data-i18n="intro.sources"></summary>
+        <a id="projection-info-reference" target="_blank" rel="noopener" data-i18n="intro.reference"></a>
+        <a id="projection-info-history" href="https://maplibrary.geography.wisc.edu/the-robinson-projection/" target="_blank" rel="noopener" data-i18n="intro.history"></a>
+        <a href="https://www.usgs.gov/publications/map-projections" target="_blank" rel="noopener" data-i18n="intro.generalReference"></a>
+      </details>
+    </div>
+  </aside>
   <!--
 __LICENSE_NOTICES__
   -->
