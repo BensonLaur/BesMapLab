@@ -7,6 +7,8 @@ const BesMapSupport = (() => {
   const openImage = document.getElementById('support-open-image');
   const saveImage = document.getElementById('support-save-image');
   const payee = document.getElementById('support-payee');
+  const description = dialog.querySelector('.support-description');
+  const sourceLink = description.querySelector('.support-source-link');
   const encodedImages = JSON.parse(document.getElementById('support-image-data').textContent);
   const imageUrls = new Map();
   const methods = {
@@ -14,6 +16,15 @@ const BesMapSupport = (() => {
     alipay: { label: 'support.alipay', name: 'Bes软件', width: 1080, height: 1680 }
   };
   let selected = 'wechat';
+
+  function renderDescription() {
+    const copy = BesMapI18n.text('support.description');
+    const marker = '{source}';
+    const linkAt = copy.indexOf(marker);
+    sourceLink.textContent = BesMapI18n.text('support.sourceLink');
+    description.replaceChildren(document.createTextNode(copy.slice(0, linkAt)), sourceLink,
+      document.createTextNode(copy.slice(linkAt + marker.length)));
+  }
 
   function imageUrl(method) {
     if (!imageUrls.has(method)) {
@@ -52,6 +63,7 @@ const BesMapSupport = (() => {
   dialog.querySelectorAll('[data-support-method]').forEach(button => {
     button.addEventListener('click', () => selectMethod(button.dataset.supportMethod));
   });
-  BesMapI18n.subscribe(() => { if (dialog.open) selectMethod(selected); });
+  BesMapI18n.subscribe(() => { renderDescription(); if (dialog.open) selectMethod(selected); });
+  renderDescription();
   return { get open() { return dialog.open; } };
 })();

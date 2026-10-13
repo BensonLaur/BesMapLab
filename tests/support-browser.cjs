@@ -29,6 +29,11 @@ module.exports = async ({ send, evaluate, click, screenshot, delay, report }) =>
   assert.equal(await evaluate(`document.getElementById('support-dialog').open`), true);
   assert.equal(await evaluate(`document.activeElement.id`), 'support-close');
   assert.deepEqual(await imageLoaded(), [1266, 1749]);
+  assert.deepEqual(await evaluate(`(() => {
+    const link = document.querySelector('.support-source-link');
+    return [link.href, link.target, link.rel, link.textContent];
+  })()`), ['https://github.com/BensonLaur/BesMapLab', '_blank', 'noopener noreferrer', '查看 GitHub 源代码 ↗']);
+  assert.equal(await evaluate(`document.querySelector('.support-description').textContent.startsWith('BesMapLab 免费、开源（查看 GitHub 源代码 ↗）')`), true);
   assert.equal(await evaluate(`document.getElementById('support-payee').textContent.includes('Benson(**城)')`), true);
   assert.equal(await evaluate(`document.querySelector('[data-support-method="wechat"]').getAttribute('aria-pressed')`), 'true');
   assert.equal(await evaluate(`fetch(document.getElementById('support-open-image').href).then(response => response.blob()).then(blob => blob.size)`), 165920);
@@ -69,6 +74,9 @@ module.exports = async ({ send, evaluate, click, screenshot, delay, report }) =>
     await evaluate(`BesMapI18n.change({ ui: ${JSON.stringify(locale.id)} })`);
     assert.equal(await evaluate(`document.getElementById('support-title').textContent`),
       await evaluate(`BesMapI18n.text('support.title')`));
+    assert.equal(await evaluate(`document.querySelector('.support-description').textContent`),
+      await evaluate(`BesMapI18n.text('support.description', { source: BesMapI18n.text('support.sourceLink') })`));
+    assert.equal(await evaluate(`document.querySelectorAll('.support-source-link').length`), 1);
     assert.equal(await evaluate(`document.getElementById('support-image').alt.includes('Benson(**城)')`), true);
     assert.equal(await evaluate(`document.getElementById('support-dialog').scrollWidth <= document.getElementById('support-dialog').clientWidth`), true, `${locale.id}: dialog overflow`);
   }
@@ -76,12 +84,14 @@ module.exports = async ({ send, evaluate, click, screenshot, delay, report }) =>
   assert.equal(await evaluate(`document.documentElement.dir`), 'rtl');
   await screenshot('support-rtl-mobile.png');
   await click('#support-close');
+  await evaluate(`BesMapI18n.change({ ui: 'zh-Hans' })`);
   await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 600, deviceScaleFactor: 1, mobile: true });
   await click('#support-toggle');
   assert.equal(await evaluate(`(() => {
     const box = document.getElementById('support-dialog').getBoundingClientRect();
     return box.left >= 0 && box.right <= innerWidth && box.top >= 0 && box.bottom <= innerHeight;
   })()`), true);
+  assert.equal(await evaluate(`document.getElementById('support-dialog').scrollWidth <= document.getElementById('support-dialog').clientWidth`), true);
   await screenshot('support-320.png');
   await evaluate(`document.getElementById('support-open-image').scrollIntoView({ block: 'nearest' })`);
   await click('#support-open-image');

@@ -64,6 +64,8 @@ for (const locale of locales) {
   assert.equal(locale.dir, ['ar', 'ur'].includes(locale.id) ? 'rtl' : 'ltr');
   const dictionary = JSON.parse(read(`locales/${locale.id}.json`));
   assert.deepEqual(Object.keys(dictionary).sort(), keys, `Incomplete dictionary: ${locale.id}`);
+  assert.equal(dictionary['support.description'].split('{source}').length, 2,
+    `${locale.id}: source link must appear exactly once in support description`);
   for (const key of keys) {
     assert(typeof dictionary[key] === 'string' && dictionary[key].trim(), `${locale.id}: empty ${key}`);
     assert(!dictionary[key].includes('\uFFFD'), `${locale.id}: invalid Unicode`);

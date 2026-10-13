@@ -105,6 +105,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .support-heading h2 { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.4; }
 #support-close { flex-shrink: 0; width: 36px; height: 36px; color: #587580; font-size: 25px; }
 .support-description { margin: 17px 0 0; font-size: 13px; line-height: 1.7; }
+.support-source-link { color: #376a7d; font-weight: 600; text-underline-offset: 2px; }
+.support-source-link:lang(zh-Hans), .support-source-link:lang(zh-Hant) { white-space: nowrap; }
+.support-source-link:focus-visible { outline: 2px solid #42768a; outline-offset: 2px; }
 .support-other-ways { margin: 8px 0 16px; color: #587580; font-size: 12px; line-height: 1.65; }
 .support-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .support-methods button { width: auto; min-height: 42px; height: auto; padding: 7px 12px; border: 1px solid #cbdde3; border-radius: 9px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 500; line-height: 1.5; }
