@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "Meridiane sind gleichmäßig verteilte senkrechte Linien; alle Breitenkreise sind so breit wie der Äquator. Für lokale Winkeltreue wächst der vertikale Maßstab im gleichen Verhältnis. Die Breitenkreise rücken zu den Polen hin auseinander; der Umriss wird rechteckig.",
   "intro.mercator.tradeoff": "Große Formen und Flächen werden verzerrt. Bei der sphärischen Mercator-Projektion ist der Längenmaßstab bei 60° doppelt so groß wie am Äquator, der Flächenmaßstab viermal so groß. Die Pole liegen im Unendlichen; diese Karte endet bei etwa 85,05° Nord und Süd.",
   "intro.mercator.use": "Linien konstanten Kompasskurses sind gerade, bilden aber gewöhnlich nicht den kürzesten Weg. Für weltweite Flächenvergleiche eine flächentreue Projektion wählen.",
-  "intro.mercator.observe": "Ist der Abstand von 0° bis 30° genauso groß wie der von 30° bis 60°?"
+  "intro.mercator.observe": "Ist der Abstand von 0° bis 30° genauso groß wie der von 30° bis 60°?",
+  "support.open": "BesMapLab unterstützen",
+  "support.title": "Weiter erkunden",
+  "support.close": "Unterstützungsfenster schließen",
+  "support.description": "BesMapLab ist kostenlos, quelloffen und funktioniert offline. Wenn es dir hilft, Weltkarten besser zu verstehen, kannst du die Pflege und neue Inhalte freiwillig unterstützen. Den Betrag bestimmst du.",
+  "support.otherWays": "Auch Nutzung, Teilen und Feedback helfen. Alle Funktionen bleiben kostenlos.",
+  "support.methods": "Zahlungsart wählen",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Empfänger: {payee}",
+  "support.imageAlt": "Original-Zahlungsbild für {method}, Empfänger: {payee}",
+  "support.instruction": "Am Computer kannst du den Code mit dem Handy scannen. Auf dem Handy speichere das Originalbild und wähle es in der Zahlungs-App aus der Galerie. Prüfe vor dem Bezahlen den Empfänger.",
+  "support.openImage": "Original öffnen ↗",
+  "support.saveImage": "Original speichern ↓"
 }

@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "經線是等間距直線，每條緯線都與赤道一樣寬。為保持局部角度，縱向按相同比例伸展，緯線間距向兩極迅速增大，形成矩形外框。",
   "intro.mercator.tradeoff": "小範圍角度得到保持，大範圍形狀和面積仍會失真。球面 Mercator 在 60° 緯度的長度比例尺為赤道的 2 倍，面積放大為 4 倍。兩極在無限遠，本圖截到南北緯約 85.05°。",
   "intro.mercator.use": "等航向線在圖上是直線，適合表達固定航向；它通常不是兩地間最短路線。比較全球地區面積時，應選等面積投影。",
-  "intro.mercator.observe": "比較緯線間距：0° 到 30° 與 30° 到 60° 的圖上距離一樣嗎？"
+  "intro.mercator.observe": "比較緯線間距：0° 到 30° 與 30° 到 60° 的圖上距離一樣嗎？",
+  "support.open": "支持 BesMapLab",
+  "support.title": "讓探索繼續",
+  "support.close": "關閉支持視窗",
+  "support.description": "BesMapLab 免費、開源，也可以離線使用。如果它幫你更了解世界地圖，歡迎自願支持後續維護與內容完善。金額由你決定。",
+  "support.otherWays": "使用、分享和回饋，也是珍貴的支持。所有功能始終免費。",
+  "support.methods": "選擇收款方式",
+  "support.wechat": "微信",
+  "support.alipay": "支付寶",
+  "support.payee": "{method} · 收款人：{payee}",
+  "support.imageAlt": "{method}收款原圖，收款人 {payee}",
+  "support.instruction": "在電腦上可用手機掃碼；在手機上可儲存原圖，再到支付應用程式中從相簿辨識。付款前請核對實際收款人。",
+  "support.openImage": "開啟原圖 ↗",
+  "support.saveImage": "儲存原圖 ↓"
 }

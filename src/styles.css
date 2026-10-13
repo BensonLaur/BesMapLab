@@ -94,6 +94,29 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .heading { z-index: 2; }
 .intro-toggle { display: block; width: auto; height: auto; min-height: 30px; margin-top: 4px; padding: 4px 0; border-radius: 4px; font: inherit; font-size: 11px; line-height: 1.5; color: #376a7d; text-decoration: underline; text-underline-offset: 3px; text-align: start; pointer-events: auto; }
 .intro-toggle:hover { background: transparent; color: #183e50; }
+.support-toggle { display: block; width: auto; min-height: 34px; margin-top: 3px; padding: 5px 10px; border: 1px solid #cbdde3; border-radius: 8px; background: #ffffffed; color: #376a7d; font-family: inherit; font-size: 11px; font-weight: 500; line-height: 1.5; text-align: start; pointer-events: auto; }
+.support-toggle:hover { background: #e6f0f3; }
+.support-dialog { width: min(440px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 20px; border: 1px solid #cbdde3; border-radius: 18px; background: #fbfaf7; color: #244752; box-shadow: 0 24px 70px #18394155; overflow-y: auto; overscroll-behavior: contain; }
+.support-dialog::backdrop { background: #16374480; }
+.support-header, .support-heading { display: flex; align-items: center; }
+.support-header { justify-content: space-between; gap: 12px; }
+.support-heading { gap: 10px; min-width: 0; }
+.support-heading svg { flex-shrink: 0; width: 34px; height: 34px; color: #527f90; }
+.support-heading h2 { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.4; }
+#support-close { flex-shrink: 0; width: 36px; height: 36px; color: #587580; font-size: 25px; }
+.support-description { margin: 17px 0 0; font-size: 13px; line-height: 1.7; }
+.support-other-ways { margin: 8px 0 16px; color: #587580; font-size: 12px; line-height: 1.65; }
+.support-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.support-methods button { width: auto; min-height: 42px; height: auto; padding: 7px 12px; border: 1px solid #cbdde3; border-radius: 9px; background: #fff; font-family: inherit; font-size: 13px; font-weight: 500; line-height: 1.5; }
+.support-methods button[aria-pressed="true"] { border-color: #527f90; background: #e6f0f3; color: #27556a; font-weight: 700; }
+.support-payee { margin: 12px 0 9px; font-size: 12px; line-height: 1.5; font-weight: 600; }
+.support-image-wrap { display: grid; place-items: center; padding: 8px; border: 1px solid #dbe6e9; border-radius: 11px; background: #fff; }
+.support-image-wrap img { display: block; max-width: 100%; width: auto; height: auto; max-height: min(40dvh, 370px); object-fit: contain; }
+.support-instruction { margin: 12px 0; color: #587580; font-size: 12px; line-height: 1.65; }
+.support-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.support-actions a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 7px 10px; border: 1px solid #cbdde3; border-radius: 9px; color: #376a7d; font-size: 12px; font-weight: 600; line-height: 1.5; text-align: center; text-decoration: none; }
+.support-actions a:hover, .support-actions a:focus-visible { background: #e6f0f3; }
+.support-actions a:focus-visible { outline: 2px solid #42768a; outline-offset: 3px; }
 .intro-open { --intro-width: 356px; }
 .intro-open #map-shell { inset-inline-start: var(--intro-width); }
 .projection-info { position: fixed; inset: 0; inset-inline-end: auto; width: var(--intro-width); z-index: 1; display: flex; flex-direction: column; padding-top: var(--intro-heading-bottom, 181px); background: #fbfaf7; border-inline-end: 1px solid #dce6e9; }
@@ -132,6 +155,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 }
 @media (max-width: 720px) {
   .intro-toggle { max-width: calc(100vw - 144px); font-size: 10px; }
+  .support-toggle { max-width: calc(100vw - 144px); font-size: 10px; }
+  .support-dialog { padding: 17px; }
   .intro-open { --intro-map-height: clamp(220px, 54dvh, 500px); }
   .intro-open #map-shell { inset-inline-start: 0; bottom: auto; height: var(--intro-map-height); }
   .intro-open .projection-note, .intro-open .intro-toggle, .intro-open .footer { display: none; }

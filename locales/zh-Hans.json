@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "经线是等间距竖线，每条纬线都与赤道一样宽。为保持局部角度，纵向按相同比例伸展，纬线间距向两极迅速增大。因此世界外框呈矩形。",
   "intro.mercator.tradeoff": "小范围内的角度得到保持，大范围形状和面积仍会失真。在球面 Mercator 中，60° 纬度的长度比例尺为赤道的 2 倍，面积放大为 4 倍。两极在无限远，当前地图截到南北纬约 85.05°。",
   "intro.mercator.use": "等航向线在图上是直线，适合表达恒定航向；它通常不是两地间最短路线。比较全球地区面积时，应选等面积投影。",
-  "intro.mercator.observe": "看纬线间距：同为相差 30°，从 0° 到 30° 与从 30° 到 60° 的图上距离一样吗？"
+  "intro.mercator.observe": "看纬线间距：同为相差 30°，从 0° 到 30° 与从 30° 到 60° 的图上距离一样吗？",
+  "support.open": "支持 BesMapLab",
+  "support.title": "让探索继续",
+  "support.close": "关闭支持卡片",
+  "support.description": "BesMapLab 免费、开源，也可以离线使用。如果它帮你更好地理解世界地图，欢迎自愿支持后续维护与内容完善。金额由你决定。",
+  "support.otherWays": "使用、分享和反馈，也都是珍贵的支持。所有功能始终免费。",
+  "support.methods": "选择收款方式",
+  "support.wechat": "微信",
+  "support.alipay": "支付宝",
+  "support.payee": "{method} · 收款人：{payee}",
+  "support.imageAlt": "{method}收款原图，收款人 {payee}",
+  "support.instruction": "电脑上可用手机扫码；手机上可保存原图，再到支付应用中从相册识别。付款前请核对实际收款人。",
+  "support.openImage": "打开原图 ↗",
+  "support.saveImage": "保存原图 ↓"
 }

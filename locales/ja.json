@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "経線は等間隔の縦線で、どの緯線も赤道と同じ幅です。局所的な角度を保つため縦方向も同じ倍率で伸ばすので、極に近づくほど緯線の間隔が広がり、輪郭は長方形になります。",
   "intro.mercator.tradeoff": "小範囲の角度は保たれますが、大きな形や面積はひずみます。球面 Mercator では緯度 60° の長さの縮尺は赤道の 2 倍、面積は 4 倍です。極は無限遠になるため、この地図は南北約 85.05° で切っています。",
   "intro.mercator.use": "一定の方位で進む等角航路が直線になります。ただし通常は最短経路ではありません。世界の地域の面積比較には正積図法を使います。",
-  "intro.mercator.observe": "0°～30° と 30°～60° は、地図上でも同じ間隔でしょうか。"
+  "intro.mercator.observe": "0°～30° と 30°～60° は、地図上でも同じ間隔でしょうか。",
+  "support.open": "BesMapLab を応援",
+  "support.title": "探索を続けよう",
+  "support.close": "支援画面を閉じる",
+  "support.description": "BesMapLab は無料・オープンソースで、オフラインでも使えます。世界地図への理解に役立ったら、保守や新しいコンテンツを任意で支援できます。金額はご自身で決められます。",
+  "support.otherWays": "利用、共有、感想も大切な支援です。すべての機能は引き続き無料です。",
+  "support.methods": "支払い方法を選択",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · 受取人：{payee}",
+  "support.imageAlt": "{method} の支払い用元画像。受取人：{payee}",
+  "support.instruction": "パソコンではスマートフォンで読み取れます。スマートフォンでは元画像を保存し、決済アプリで写真から読み取ってください。支払う前に受取人を確認してください。",
+  "support.openImage": "元画像を開く ↗",
+  "support.saveImage": "元画像を保存 ↓"
 }

@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "Les méridiens sont des verticales régulièrement espacées ; tous les parallèles ont la largeur de l’équateur. Pour conserver les angles locaux, l’échelle verticale augmente dans la même proportion. Les parallèles s’écartent vers les pôles et le contour est rectangulaire.",
   "intro.mercator.tradeoff": "Les grandes formes et les surfaces se déforment. Sur Mercator sphérique, à 60°, l’échelle des longueurs vaut deux fois celle de l’équateur, soit quatre fois pour les surfaces. Les pôles sont à l’infini ; cette carte s’arrête vers 85,05° nord et sud.",
   "intro.mercator.use": "Les lignes à cap constant sont droites, sans être généralement le trajet le plus court. Pour comparer les surfaces mondiales, choisir une projection équivalente.",
-  "intro.mercator.observe": "L’écart entre 0° et 30° est-il le même qu’entre 30° et 60° ?"
+  "intro.mercator.observe": "L’écart entre 0° et 30° est-il le même qu’entre 30° et 60° ?",
+  "support.open": "Soutenir BesMapLab",
+  "support.title": "Poursuivre l’exploration",
+  "support.close": "Fermer la fenêtre de soutien",
+  "support.description": "BesMapLab est gratuit, open source et utilisable hors ligne. S’il vous aide à comprendre les cartes du monde, vous pouvez soutenir librement sa maintenance et ses nouveaux contenus. Vous choisissez le montant.",
+  "support.otherWays": "L’utiliser, le partager et donner votre avis est aussi précieux. Toutes les fonctions restent gratuites.",
+  "support.methods": "Choisir un moyen de paiement",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Bénéficiaire : {payee}",
+  "support.imageAlt": "Image de paiement originale {method}, bénéficiaire : {payee}",
+  "support.instruction": "Sur ordinateur, scannez avec votre téléphone. Sur téléphone, enregistrez l’image originale et sélectionnez-la dans la galerie de l’application de paiement. Vérifiez le bénéficiaire avant de payer.",
+  "support.openImage": "Ouvrir l’original ↗",
+  "support.saveImage": "Enregistrer l’original ↓"
 }

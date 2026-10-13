@@ -70,12 +70,15 @@ function build() {
   const manifest = JSON.parse(read('data/sources.json'));
   const notices = [read('LICENSE'), read('THIRD_PARTY_NOTICES.md'),
     ...manifest.vendor.map(item => `${item.package} ${item.version}\n${read(item.licensePath)}`)].join('\n\n');
+  const supportImages = Object.fromEntries(['wechat', 'alipay'].map(method => [method,
+    fs.readFileSync(path.join(root, `resources/support/${method}.png`)).toString('base64')]));
   const replacements = {
-    __STYLES__: read('src/styles.css'), __APP__: read('src/i18n.js') + '\n' + read('src/projections.js') + '\n' + read('src/projection-info.js') + '\n' + read('src/map.js'),
+    __STYLES__: read('src/styles.css'), __APP__: read('src/i18n.js') + '\n' + read('src/support.js') + '\n' + read('src/projections.js') + '\n' + read('src/projection-info.js') + '\n' + read('src/map.js'),
     __D3__: read('vendor/d3.min.js'), __PROJECTIONS__: read('vendor/d3-geo-projection.min.js'),
     __TOPOJSON__: read('vendor/topojson-client.min.js'),
     __I18N__: JSON.stringify({ locales, messages, regions, oceans }),
     __DETAIL__: JSON.stringify(detail), __MOTION__: JSON.stringify(motion),
+    __SUPPORT_IMAGES__: JSON.stringify(supportImages),
     __LICENSE_NOTICES__: notices.replace(/--/g, '—')
   };
   let html = read('src/index.template.html');

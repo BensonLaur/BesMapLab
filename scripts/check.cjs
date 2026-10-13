@@ -30,9 +30,17 @@ for (const entry of [...manifest.data, ...manifest.vendor]) {
   assert.equal(digest, entry.sha256, `Source checksum changed: ${entry.path}`);
   if (entry.licensePath) assert(fs.existsSync(path.join(root, entry.licensePath)));
 }
+const supportImages = {
+  'resources/support/wechat.png': 'a89ad9f33ecc5b9bc6a6bf5587fa16cd04809d3bfbcaac58a0731faceae41449',
+  'resources/support/alipay.png': '5f5722d5a30ecbd5d51684a2051eb40961070c8954a2f3b3eef403f526f367d4'
+};
+for (const [filename, expected] of Object.entries(supportImages)) {
+  const digest = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, filename))).digest('hex');
+  assert.equal(digest, expected, `Support image changed; verify its recipient: ${filename}`);
+}
 const { html, detail, motion } = build();
 assert.equal(read('index.html'), html, 'Generated page is stale. Run npm run build.');
-assert(!/__(D3|PROJECTIONS|TOPOJSON|DETAIL|MOTION|I18N|STYLES|APP|LICENSE_NOTICES)__/.test(html));
+assert(!/__(D3|PROJECTIONS|TOPOJSON|DETAIL|MOTION|I18N|STYLES|APP|LICENSE_NOTICES|SUPPORT_IMAGES)__/.test(html));
 assert(!/<script[^>]+src\s*=|<link[^>]+rel=["']stylesheet|<image\b/i.test(html), 'Standalone page must contain its runtime and vector data');
 assert.equal(detail.objects.countries.geometries.length, 242);
 assert.equal(motion.objects.countries.geometries.length, 242);

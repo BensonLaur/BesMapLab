@@ -105,6 +105,7 @@ async function launchBrowser() {
   await send('Page.navigate', { url: pathToFileURL(path.join(root, 'index.html')).href + '?lang=zh-Hans' });
   await delay(1200);
   const focusedSuite = process.argv.includes('--intro-only') ? './projection-info-browser.cjs'
+    : process.argv.includes('--support-only') ? './support-browser.cjs'
     : process.argv.includes('--drag-only') ? './drag-browser.cjs'
     : process.argv.includes('--center-only') ? './centering-browser.cjs'
     : process.argv.includes('--labels-only') ? './zoom-labels-browser.cjs' : null;
@@ -528,6 +529,7 @@ async function launchBrowser() {
   await require('./drag-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
   await require('./centering-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
   await require('./projection-info-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
+  await require('./support-browser.cjs')({ send, evaluate, click, screenshot, delay, report });
   fs.writeFileSync(path.join(output, 'map-validation.json'), JSON.stringify(report, null, 2).replace(/\n/g, '\r\n'));
   console.log(JSON.stringify(report));
   await send('Browser.close');

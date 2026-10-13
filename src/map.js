@@ -552,6 +552,7 @@
     if (!layerPanel.hidden && !layerPanel.contains(event.target) && !layerToggle.contains(event.target)) setPanel(false);
   });
   window.addEventListener('keydown', event => {
+    if (document.getElementById('support-dialog').open) return;
     if (event.key === 'Escape' && !layerPanel.hidden) { setPanel(false, true); return; }
     if (event.key === 'Escape' && !languagePanel.hidden) { setLanguagePanel(false, true); return; }
     if (event.key === 'Escape' && BesMapProjectionInfo.open) { BesMapProjectionInfo.setOpen(false, true); return; }

@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "Los meridianos son rectas verticales equidistantes; todos los paralelos tienen la anchura del ecuador. Para conservar ángulos locales, la escala vertical crece en la misma proporción: los paralelos se separan hacia los polos y el contorno es rectangular.",
   "intro.mercator.tradeoff": "Las formas grandes y las áreas se deforman. En Mercator esférica, a 60° la escala de longitud duplica la del ecuador y el área se multiplica por cuatro. Los polos quedan en el infinito; este mapa termina cerca de 85,05° norte y sur.",
   "intro.mercator.use": "Las líneas de rumbo constante son rectas, aunque normalmente no son la ruta más corta. Para comparar áreas mundiales, usa una proyección equivalente.",
-  "intro.mercator.observe": "¿La separación entre 0° y 30° es igual a la separación entre 30° y 60°?"
+  "intro.mercator.observe": "¿La separación entre 0° y 30° es igual a la separación entre 30° y 60°?",
+  "support.open": "Apoya BesMapLab",
+  "support.title": "Sigue explorando",
+  "support.close": "Cerrar el cuadro de apoyo",
+  "support.description": "BesMapLab es gratuito, de código abierto y funciona sin conexión. Si te ayuda a entender los mapas del mundo, puedes apoyar voluntariamente su mantenimiento y nuevos contenidos. Tú decides cuánto aportar.",
+  "support.otherWays": "Usarlo, compartirlo y enviar comentarios también ayuda. Todas las funciones seguirán siendo gratuitas.",
+  "support.methods": "Elige un método de pago",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Destinatario: {payee}",
+  "support.imageAlt": "Imagen original de pago de {method}; destinatario: {payee}",
+  "support.instruction": "En una computadora, escanea con el móvil. En el móvil, guarda la imagen original y selecciónala desde la galería en la aplicación de pago. Comprueba el destinatario antes de pagar.",
+  "support.openImage": "Abrir original ↗",
+  "support.saveImage": "Guardar original ↓"
 }

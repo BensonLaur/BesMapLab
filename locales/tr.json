@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "Meridyenler eş aralıklı düşey doğrulardır; bütün paraleller ekvator kadar geniştir. Yerel açıları korumak için düşey ölçek de aynı oranda artar. Paraleller kutuplara doğru açılır ve dikdörtgen bir dış hat oluşur.",
   "intro.mercator.tradeoff": "Büyük biçimler ve alanlar bozulur. Küresel Mercator’da 60° enleminde uzunluk ölçeği ekvatordakinin iki, alan ölçeği dört katıdır. Kutuplar sonsuzdadır; bu harita yaklaşık 85,05° kuzey ve güneyde kesilir.",
   "intro.mercator.use": "Sabit pusula açılı rotalar düz çizgidir; genellikle en kısa yol değildir. Dünya bölgelerinin alanını karşılaştırırken eş alanlı projeksiyon seçin.",
-  "intro.mercator.observe": "0°–30° aralığı ile 30°–60° aralığı haritada eşit mi?"
+  "intro.mercator.observe": "0°–30° aralığı ile 30°–60° aralığı haritada eşit mi?",
+  "support.open": "BesMapLab’i destekle",
+  "support.title": "Keşfetmeye devam et",
+  "support.close": "Destek penceresini kapat",
+  "support.description": "BesMapLab ücretsizdir, açık kaynaklıdır ve çevrimdışı çalışır. Dünya haritalarını anlamana yardımcı oluyorsa bakımını ve yeni içeriklerini gönüllü olarak destekleyebilirsin. Tutarı sen belirlersin.",
+  "support.otherWays": "Kullanmak, paylaşmak ve geri bildirim vermek de değerlidir. Tüm özellikler ücretsiz kalır.",
+  "support.methods": "Ödeme yöntemi seç",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Alıcı: {payee}",
+  "support.imageAlt": "{method} için özgün ödeme görseli, alıcı: {payee}",
+  "support.instruction": "Bilgisayarda kodu telefonunla tara. Telefonda özgün görseli kaydedip ödeme uygulamasının galerisinden seç. Ödemeden önce alıcıyı doğrula.",
+  "support.openImage": "Özgün görseli aç ↗",
+  "support.saveImage": "Özgün görseli kaydet ↓"
 }

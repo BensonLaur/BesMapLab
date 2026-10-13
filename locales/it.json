@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "I meridiani sono verticali equidistanti; tutti i paralleli sono larghi quanto l’equatore. Per conservare gli angoli locali, la scala verticale cresce dello stesso fattore. I paralleli si allontanano verso i poli, formando un contorno rettangolare.",
   "intro.mercator.tradeoff": "Grandi forme e aree si deformano. In Mercator sferica, a 60° la scala delle lunghezze è doppia rispetto all’equatore, e le aree sono quadruplicate. I poli sono all’infinito; questa mappa termina a circa 85,05° nord e sud.",
   "intro.mercator.use": "Le linee a rotta costante sono rette, ma solitamente non sono il percorso più breve. Per confrontare aree mondiali, usa una proiezione equivalente.",
-  "intro.mercator.observe": "La distanza tra 0° e 30° è uguale a quella tra 30° e 60° sulla mappa?"
+  "intro.mercator.observe": "La distanza tra 0° e 30° è uguale a quella tra 30° e 60° sulla mappa?",
+  "support.open": "Sostieni BesMapLab",
+  "support.title": "Continua a esplorare",
+  "support.close": "Chiudi la finestra di sostegno",
+  "support.description": "BesMapLab è gratuito, open source e funziona offline. Se ti aiuta a capire meglio le carte del mondo, puoi sostenere volontariamente la manutenzione e i nuovi contenuti. Scegli tu l’importo.",
+  "support.otherWays": "Anche usarlo, condividerlo e dare suggerimenti è un aiuto prezioso. Tutte le funzioni restano gratuite.",
+  "support.methods": "Scegli un metodo di pagamento",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Destinatario: {payee}",
+  "support.imageAlt": "Immagine originale per pagare con {method}, destinatario: {payee}",
+  "support.instruction": "Sul computer, scansiona con il telefono. Sul telefono, salva l’immagine originale e selezionala dalla galleria nell’app di pagamento. Verifica il destinatario prima di pagare.",
+  "support.openImage": "Apri originale ↗",
+  "support.saveImage": "Salva originale ↓"
 }

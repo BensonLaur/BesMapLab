@@ -67,5 +67,18 @@
   "intro.mercator.geometry": "Meridians are equally spaced vertical lines; every parallel is as wide as the equator. To preserve local angles, vertical scale increases by the same factor, spreading parallels farther apart toward the poles and producing a rectangular outline.",
   "intro.mercator.tradeoff": "Local angles are preserved, but large shapes and areas are distorted. On spherical Mercator, the length scale at 60° is twice that at the equator, making area four times as large. The poles lie at infinity; this map stops at about 85.05° north and south.",
   "intro.mercator.use": "Lines of constant compass bearing are straight. This is useful for expressing a constant heading, usually not the shortest route. Use an equal-area projection to compare world regions by area.",
-  "intro.mercator.observe": "Compare parallel spacing: are 0°–30° and 30°–60° equally far apart on the map?"
+  "intro.mercator.observe": "Compare parallel spacing: are 0°–30° and 30°–60° equally far apart on the map?",
+  "support.open": "Support BesMapLab",
+  "support.title": "Keep exploring",
+  "support.close": "Close support dialog",
+  "support.description": "BesMapLab is free, open source, and works offline. If it helps you understand world maps, you can voluntarily support its upkeep and new content. You choose the amount.",
+  "support.otherWays": "Using, sharing, and giving feedback also help. All features stay free.",
+  "support.methods": "Choose a payment method",
+  "support.wechat": "WeChat",
+  "support.alipay": "Alipay",
+  "support.payee": "{method} · Recipient: {payee}",
+  "support.imageAlt": "Original {method} payment image, recipient {payee}",
+  "support.instruction": "On a computer, scan with your phone. On a phone, save the original image and recognize it from the payment app’s photo album. Check the recipient before paying.",
+  "support.openImage": "Open original ↗",
+  "support.saveImage": "Save original ↓"
 }

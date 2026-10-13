@@ -12,6 +12,8 @@ Natural Earth 经纬度多边形、海上界线指示线 + 标签位置
 
 `scripts/build.cjs` 使用仓库内固定版本的 D3 和 TopoJSON 工具构建页面。没有网络下载步骤，构建结果可复现。
 
+构建时也会把 `resources/support/` 下的两张 PNG 编入 `index.html`。`src/support.js` 只在打开自愿支持卡片时生成本地 Blob URL，供图片显示、打开原图和保存原图使用；不发送收款请求，也不改变地图视图。
+
 ## 水平旋转与垂直平移
 
 每种投影的比例和屏幕位置在选择该投影时固定。旋转交互改变 `projection.rotate([-centralLongitude, 0, 0])`，每帧重算轮廓与标签。D3 处理跨左右接缝的多边形裁剪。
